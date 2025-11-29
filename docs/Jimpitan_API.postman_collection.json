@@ -1,0 +1,814 @@
+{
+	"info": {
+		"_postman_id": "jimpitan-api-2025",
+		"name": "Jimpitan App API",
+		"description": "Complete API collection for Jimpitan App - Web & Mobile endpoints\n\nBase URL: {{base_url}} (set in environment)\n\n**Authentication:**\n- Mobile endpoints use stateless auth (username + password in every request)\n- Web endpoints use token-based auth (login once, use token)\n\n**Roles:**\n- admin: Full access to all features\n- petugas: Limited to QR scan, submit transaction, view own history",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Web Endpoints (JSONP/Token-based)",
+			"item": [
+				{
+					"name": "Authentication",
+					"item": [
+						{
+							"name": "Login",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}?action=login&username={{username}}&password={{password}}&callback=callback",
+									"host": ["{{base_url}}"],
+									"query": [
+										{
+											"key": "action",
+											"value": "login"
+										},
+										{
+											"key": "username",
+											"value": "{{username}}"
+										},
+										{
+											"key": "password",
+											"value": "{{password}}"
+										},
+										{
+											"key": "callback",
+											"value": "callback"
+										}
+									]
+								},
+								"description": "Login and get authentication token (valid 7 days)"
+							},
+							"response": []
+						},
+						{
+							"name": "Verify Token",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}?action=verifyToken&token={{token}}&callback=callback",
+									"host": ["{{base_url}}"],
+									"query": [
+										{
+											"key": "action",
+											"value": "verifyToken"
+										},
+										{
+											"key": "token",
+											"value": "{{token}}"
+										},
+										{
+											"key": "callback",
+											"value": "callback"
+										}
+									]
+								},
+								"description": "Verify if token is still valid"
+							},
+							"response": []
+						},
+						{
+							"name": "Logout",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}?action=logout&token={{token}}&callback=callback",
+									"host": ["{{base_url}}"],
+									"query": [
+										{
+											"key": "action",
+											"value": "logout"
+										},
+										{
+											"key": "token",
+											"value": "{{token}}"
+										},
+										{
+											"key": "callback",
+											"value": "callback"
+										}
+									]
+								},
+								"description": "Logout and invalidate token"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Users (Admin Only)",
+					"item": [
+						{
+							"name": "Get All Users",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}?action=getUsers&token={{token}}&callback=callback",
+									"host": ["{{base_url}}"],
+									"query": [
+										{
+											"key": "action",
+											"value": "getUsers"
+										},
+										{
+											"key": "token",
+											"value": "{{token}}"
+										},
+										{
+											"key": "callback",
+											"value": "callback"
+										}
+									]
+								},
+								"description": "Get list of all users (admin only)"
+							},
+							"response": []
+						},
+						{
+							"name": "Create User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"action\": \"createUser\",\n  \"token\": \"{{token}}\",\n  \"name\": \"New User\",\n  \"username\": \"newuser\",\n  \"password\": \"password123\",\n  \"role\": \"petugas\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}",
+									"host": ["{{base_url}}"]
+								},
+								"description": "Create new user (admin only)"
+							},
+							"response": []
+						},
+						{
+							"name": "Update User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"action\": \"updateUser\",\n  \"token\": \"{{token}}\",\n  \"userId\": \"USR-001\",\n  \"name\": \"Updated Name\",\n  \"username\": \"updateduser\",\n  \"role\": \"petugas\",\n  \"password\": \"newpassword123\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}",
+									"host": ["{{base_url}}"]
+								},
+								"description": "Update existing user (admin only). Password is optional."
+							},
+							"response": []
+						},
+						{
+							"name": "Delete User",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"action\": \"deleteUser\",\n  \"token\": \"{{token}}\",\n  \"userId\": \"USR-001\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}",
+									"host": ["{{base_url}}"]
+								},
+								"description": "Delete user (admin only)"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Customers",
+					"item": [
+						{
+							"name": "Get All Customers",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}?action=getCustomers&callback=callback",
+									"host": ["{{base_url}}"],
+									"query": [
+										{
+											"key": "action",
+											"value": "getCustomers"
+										},
+										{
+											"key": "callback",
+											"value": "callback"
+										}
+									]
+								},
+								"description": "Get list of all customers"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Customer by QR Hash",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}?action=getCustomerByQRHash&qrHash={{qr_hash}}&callback=callback",
+									"host": ["{{base_url}}"],
+									"query": [
+										{
+											"key": "action",
+											"value": "getCustomerByQRHash"
+										},
+										{
+											"key": "qrHash",
+											"value": "{{qr_hash}}"
+										},
+										{
+											"key": "callback",
+											"value": "callback"
+										}
+									]
+								},
+								"description": "Get customer details by QR hash"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Customer",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}?action=createCustomer&token={{token}}&blok=A-101&nama=John Doe&callback=callback",
+									"host": ["{{base_url}}"],
+									"query": [
+										{
+											"key": "action",
+											"value": "createCustomer"
+										},
+										{
+											"key": "token",
+											"value": "{{token}}"
+										},
+										{
+											"key": "blok",
+											"value": "A-101"
+										},
+										{
+											"key": "nama",
+											"value": "John Doe"
+										},
+										{
+											"key": "callback",
+											"value": "callback"
+										}
+									]
+								},
+								"description": "Create new customer (admin only)"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Customer",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}?action=updateCustomer&token={{token}}&customerId=CUST-001&blok=A-102&nama=Jane Doe&callback=callback",
+									"host": ["{{base_url}}"],
+									"query": [
+										{
+											"key": "action",
+											"value": "updateCustomer"
+										},
+										{
+											"key": "token",
+											"value": "{{token}}"
+										},
+										{
+											"key": "customerId",
+											"value": "CUST-001"
+										},
+										{
+											"key": "blok",
+											"value": "A-102"
+										},
+										{
+											"key": "nama",
+											"value": "Jane Doe"
+										},
+										{
+											"key": "callback",
+											"value": "callback"
+										}
+									]
+								},
+								"description": "Update customer details (admin only)"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Customer",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}?action=deleteCustomer&token={{token}}&customerId=CUST-001&callback=callback",
+									"host": ["{{base_url}}"],
+									"query": [
+										{
+											"key": "action",
+											"value": "deleteCustomer"
+										},
+										{
+											"key": "token",
+											"value": "{{token}}"
+										},
+										{
+											"key": "customerId",
+											"value": "CUST-001"
+										},
+										{
+											"key": "callback",
+											"value": "callback"
+										}
+									]
+								},
+								"description": "Delete customer (admin only)"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Transactions",
+					"item": [
+						{
+							"name": "Submit Transaction",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}?action=submitTransaction&customer_id=CUST-001&id=A-101&nama=John Doe&nominal=2000&user_id=USR-002&petugas=Petugas 1&callback=callback",
+									"host": ["{{base_url}}"],
+									"query": [
+										{
+											"key": "action",
+											"value": "submitTransaction"
+										},
+										{
+											"key": "customer_id",
+											"value": "CUST-001"
+										},
+										{
+											"key": "id",
+											"value": "A-101"
+										},
+										{
+											"key": "nama",
+											"value": "John Doe"
+										},
+										{
+											"key": "nominal",
+											"value": "2000"
+										},
+										{
+											"key": "user_id",
+											"value": "USR-002"
+										},
+										{
+											"key": "petugas",
+											"value": "Petugas 1"
+										},
+										{
+											"key": "callback",
+											"value": "callback"
+										}
+									]
+								},
+								"description": "Submit new transaction"
+							},
+							"response": []
+						},
+						{
+							"name": "Get All History",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}?action=getHistory&callback=callback",
+									"host": ["{{base_url}}"],
+									"query": [
+										{
+											"key": "action",
+											"value": "getHistory"
+										},
+										{
+											"key": "callback",
+											"value": "callback"
+										}
+									]
+								},
+								"description": "Get all transaction history"
+							},
+							"response": []
+						},
+						{
+							"name": "Get User Transactions",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}?action=getUserTransactions&token={{token}}&callback=callback",
+									"host": ["{{base_url}}"],
+									"query": [
+										{
+											"key": "action",
+											"value": "getUserTransactions"
+										},
+										{
+											"key": "token",
+											"value": "{{token}}"
+										},
+										{
+											"key": "callback",
+											"value": "callback"
+										}
+									]
+								},
+								"description": "Get transactions for current user only"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Transaction",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}?action=deleteTransaction&token={{token}}&txid=TX-20250101-001&callback=callback",
+									"host": ["{{base_url}}"],
+									"query": [
+										{
+											"key": "action",
+											"value": "deleteTransaction"
+										},
+										{
+											"key": "token",
+											"value": "{{token}}"
+										},
+										{
+											"key": "txid",
+											"value": "TX-20250101-001"
+										},
+										{
+											"key": "callback",
+											"value": "callback"
+										}
+									]
+								},
+								"description": "Delete transaction by TXID"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Configuration (Admin Only)",
+					"item": [
+						{
+							"name": "Get Config",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}?action=getConfig&token={{token}}&callback=callback",
+									"host": ["{{base_url}}"],
+									"query": [
+										{
+											"key": "action",
+											"value": "getConfig"
+										},
+										{
+											"key": "token",
+											"value": "{{token}}"
+										},
+										{
+											"key": "callback",
+											"value": "callback"
+										}
+									]
+								},
+								"description": "Get system configuration (admin only)"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Config",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}?action=updateConfig&token={{token}}&key=nominalDefault&value=3000&callback=callback",
+									"host": ["{{base_url}}"],
+									"query": [
+										{
+											"key": "action",
+											"value": "updateConfig"
+										},
+										{
+											"key": "token",
+											"value": "{{token}}"
+										},
+										{
+											"key": "key",
+											"value": "nominalDefault"
+										},
+										{
+											"key": "value",
+											"value": "3000"
+										},
+										{
+											"key": "callback",
+											"value": "callback"
+										}
+									]
+								},
+								"description": "Update configuration value (admin only)"
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Mobile Endpoints (Stateless)",
+			"item": [
+				{
+					"name": "Mobile - Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"mobileLogin\",\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": ["{{base_url}}"]
+						},
+						"description": "Mobile login - returns user data for stateless auth"
+					},
+					"response": []
+				},
+				{
+					"name": "Mobile - Scan QR",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"mobileScanQR\",\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"qrHash\": \"{{qr_hash}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": ["{{base_url}}"]
+						},
+						"description": "Scan QR and get customer data (any role)"
+					},
+					"response": []
+				},
+				{
+					"name": "Mobile - Submit Transaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"mobileSubmitTransaction\",\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"customer_id\": \"CUST-001\",\n  \"id\": \"A-101\",\n  \"nama\": \"John Doe\",\n  \"nominal\": 2000\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": ["{{base_url}}"]
+						},
+						"description": "Submit transaction from mobile (any role)"
+					},
+					"response": []
+				},
+				{
+					"name": "Mobile - Bulk Submit",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"mobileBulkSubmit\",\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"transactions\": [\n    {\n      \"customer_id\": \"CUST-001\",\n      \"id\": \"A-101\",\n      \"nama\": \"John Doe\",\n      \"nominal\": 2000\n    },\n    {\n      \"customer_id\": \"CUST-002\",\n      \"id\": \"A-102\",\n      \"nama\": \"Jane Smith\",\n      \"nominal\": 3000\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": ["{{base_url}}"]
+						},
+						"description": "Submit multiple transactions at once (any role)"
+					},
+					"response": []
+				},
+				{
+					"name": "Mobile - Get History",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"mobileGetHistory\",\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"startDate\": \"2025-01-01\",\n  \"endDate\": \"2025-12-31\",\n  \"limit\": 100\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": ["{{base_url}}"]
+						},
+						"description": "Get transaction history with filters. Admin sees all, petugas sees own only."
+					},
+					"response": []
+				},
+				{
+					"name": "Mobile - Get History Summary",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"mobileGetHistorySummary\",\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"startDate\": \"2025-01-01\",\n  \"endDate\": \"2025-12-31\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": ["{{base_url}}"]
+						},
+						"description": "Get summary statistics (total transactions, total nominal)"
+					},
+					"response": []
+				},
+				{
+					"name": "Mobile - Delete Transaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"mobileDeleteTransaction\",\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"txid\": \"TX-20250101-001\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": ["{{base_url}}"]
+						},
+						"description": "Delete single transaction. Admin can delete any, petugas only own."
+					},
+					"response": []
+				},
+				{
+					"name": "Mobile - Bulk Delete Transactions",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"mobileBulkDeleteTransactions\",\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"txids\": [\n    \"TX-20250101-001\",\n    \"TX-20250101-002\",\n    \"TX-20250101-003\"\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}",
+							"host": ["{{base_url}}"]
+						},
+						"description": "Delete multiple transactions at once"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}?action=health&callback=callback",
+					"host": ["{{base_url}}"],
+					"query": [
+						{
+							"key": "action",
+							"value": "health"
+						},
+						{
+							"key": "callback",
+							"value": "callback"
+						}
+					]
+				},
+				"description": "Check if API is running"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec",
+			"type": "string"
+		},
+		{
+			"key": "username",
+			"value": "admin",
+			"type": "string"
+		},
+		{
+			"key": "password",
+			"value": "admin123",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "qr_hash",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
