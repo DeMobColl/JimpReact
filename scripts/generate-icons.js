@@ -16,7 +16,12 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const MASTER_ICON = path.join(__dirname, '..', 'icon-master.png');
+// Prefer PNG master, fallback to SVG if PNG not present
+let MASTER_ICON = path.join(__dirname, '..', 'icon-master.png');
+const MASTER_SVG = path.join(__dirname, '..', 'icon-master.svg');
+if (!fs.existsSync(MASTER_ICON) && fs.existsSync(MASTER_SVG)) {
+  MASTER_ICON = MASTER_SVG;
+}
 const OUTPUT_DIR = path.join(__dirname, '..', 'public');
 
 // Icon sizes required for PWA
