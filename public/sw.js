@@ -136,14 +136,34 @@ async function syncTransactions() {
 
 // Push notification support (future feature)
 self.addEventListener('push', (event) => {
-  const data = event.data ? event.data.json() : {};
+  // Push payload may be JSON or plain text. Be defensive and handle both.
+  let data = {};
+
+  if (event.data) {
+    try {
+      // Prefer structured JSON payload
+      data = event.data.json();
+    } catch (err) {
+      // Not valid JSON: fallback to raw text
+      try {
+        const raw = (typeof event.data.text === 'function') ? event.data.text() : String(event.data);
+        // Try parse text as JSON in case it's a JSON string
+        data = JSON.parse(raw);
+      } catch (e) {
+        // Final fallback -> use raw text as body
+        const raw = (typeof event.data.text === 'function') ? event.data.text() : String(event.data);
+        data = { title: 'Jimpitan App', body: raw, url: '/' };
+      }
+    }
+  }
+
   const title = data.title || 'Jimpitan App';
   const options = {
     body: data.body || 'New notification',
     icon: '/icon-192x192.png',
     badge: '/icon-72x72.png',
     vibrate: [200, 100, 200],
-    data: data.url || '/'
+    data: (typeof data.url === 'string') ? data.url : (data.url || '/')
   };
 
   event.waitUntil(
@@ -155,6 +175,19 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(
-    clients.openWindow(event.notification.data)
+    (async () => {
+      const payload = event.notification.data;
+      let url = '/';
+      if (typeof payload === 'string') {
+        url = payload;
+      } else if (payload && typeof payload.url === 'string') {
+        url = payload.url;
+      }
+      try {
+        await clients.openWindow(url);
+      } catch (err) {
+        // ignore
+      }
+    })()
   );
 });
