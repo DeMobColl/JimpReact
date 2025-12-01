@@ -216,6 +216,39 @@ function doPost(e) {
         response = handleDeleteCustomer(params);
         break;
         
+      // ============================================
+      // MOBILE APP ENDPOINTS
+      // ============================================
+      // Mobile: Authentication
+      case 'mobileLogin':
+        response = handleMobileLogin(params);
+        break;
+        
+      case 'mobileLogout':
+        response = handleMobileLogout(params);
+        break;
+        
+      // Mobile: Operations
+      case 'mobileScanQR':
+        response = handleMobileScanQR(params);
+        break;
+        
+      case 'mobileSubmitTransaction':
+        response = handleMobileSubmitTransaction(params);
+        break;
+        
+      case 'mobileGetHistory':
+        response = handleMobileGetHistory(params);
+        break;
+        
+      case 'mobileGetSummary':
+        response = handleMobileGetSummary(params);
+        break;
+        
+      case 'mobileDeleteTransaction':
+        response = handleMobileDeleteTransaction(params);
+        break;
+        
       default:
         // Default: treat as single transaction submission
         response = submitTransaction(params);

@@ -1,0 +1,262 @@
+{
+	"info": {
+		"_postman_id": "mobile-jimpitan-api-2025",
+		"name": "Jimpitan Mobile API",
+		"description": "Collection untuk testing Mobile API Jimpitan App (Petugas Only)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Mobile Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Save mobile token to environment",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.status === 'success') {",
+									"        pm.environment.set('mobileToken', jsonData.data.mobileToken);",
+									"        pm.environment.set('userId', jsonData.data.id);",
+									"        pm.environment.set('userName', jsonData.data.name);",
+									"        console.log('Mobile Token saved:', jsonData.data.mobileToken);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"mobileLogin\",\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}",
+							"host": ["{{baseUrl}}"]
+						},
+						"description": "Login untuk petugas dan mendapatkan mobile token (berlaku 7 hari)"
+					},
+					"response": []
+				},
+				{
+					"name": "Mobile Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Clear mobile token from environment",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.status === 'success') {",
+									"        pm.environment.unset('mobileToken');",
+									"        console.log('Mobile Token cleared');",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"mobileLogout\",\n  \"mobileToken\": \"{{mobileToken}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}",
+							"host": ["{{baseUrl}}"]
+						},
+						"description": "Logout dan hapus mobile token dari server"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "QR & Customer",
+			"item": [
+				{
+					"name": "Scan QR Code",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Save customer data to environment for next request",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.status === 'success') {",
+									"        pm.environment.set('customerId', jsonData.data.id);",
+									"        pm.environment.set('customerBlok', jsonData.data.blok);",
+									"        pm.environment.set('customerNama', jsonData.data.nama);",
+									"        console.log('Customer data saved:', jsonData.data);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"mobileScanQR\",\n  \"mobileToken\": \"{{mobileToken}}\",\n  \"qrHash\": \"{{qrHash}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}",
+							"host": ["{{baseUrl}}"]
+						},
+						"description": "Scan QR code customer dan dapatkan data lengkap customer"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Transactions",
+			"item": [
+				{
+					"name": "Submit Transaction",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Save transaction ID for delete test",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.status === 'success') {",
+									"        pm.environment.set('lastTxid', jsonData.data.txid);",
+									"        console.log('Transaction submitted:', jsonData.data.txid);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"mobileSubmitTransaction\",\n  \"mobileToken\": \"{{mobileToken}}\",\n  \"customer_id\": \"{{customerId}}\",\n  \"id\": \"{{customerBlok}}\",\n  \"nama\": \"{{customerNama}}\",\n  \"nominal\": 5000\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}",
+							"host": ["{{baseUrl}}"]
+						},
+						"description": "Submit transaksi setoran customer"
+					},
+					"response": []
+				},
+				{
+					"name": "Get History",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"mobileGetHistory\",\n  \"mobileToken\": \"{{mobileToken}}\",\n  \"limit\": 50\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}",
+							"host": ["{{baseUrl}}"]
+						},
+						"description": "Lihat riwayat transaksi petugas sendiri (maks 50 transaksi)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Summary",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"mobileGetSummary\",\n  \"mobileToken\": \"{{mobileToken}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}",
+							"host": ["{{baseUrl}}"]
+						},
+						"description": "Lihat ringkasan statistik transaksi petugas"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Transaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"mobileDeleteTransaction\",\n  \"mobileToken\": \"{{mobileToken}}\",\n  \"txid\": \"{{lastTxid}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}",
+							"host": ["{{baseUrl}}"]
+						},
+						"description": "Hapus transaksi sendiri (hanya bisa hapus transaksi yang dibuat sendiri)"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec",
+			"type": "string"
+		}
+	]
+}
