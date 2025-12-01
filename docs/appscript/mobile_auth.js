@@ -60,9 +60,9 @@ function handleMobileLogin(params) {
         var expiryISO = expiry.toISOString();
         var loginISO = now.toISOString();
         
-        // Update sheet - Column I: Token Mobile, Column J: Token Mobile Expiry
-        usersSheet.getRange(i + 1, 9).setValue(mobileToken);     // Column I
-        usersSheet.getRange(i + 1, 10).setValue(expiryISO);      // Column J
+        // Update sheet - Column I: Token Mobile (index 9), Column J: Token Mobile Expiry (index 10)
+        usersSheet.getRange(i + 1, 9).setValue(mobileToken);     // Column I (index 9)
+        usersSheet.getRange(i + 1, 10).setValue(expiryISO);      // Column J (index 10)
         usersSheet.getRange(i + 1, 8).setValue(loginISO);        // Column H: Last Login
         
         return {

@@ -146,22 +146,17 @@ function doGet(e) {
  */
 function createPostResponse(data) {
   return ContentService.createTextOutput(JSON.stringify(data))
-    .setMimeType(ContentService.MimeType.JSON)
-    .setHeader('Access-Control-Allow-Origin', '*')
-    .setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-    .setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 /**
- * Handle OPTIONS request for CORS preflight
+ * Create JSON response for mobile endpoints (plain JSON without CORS)
+ * @param {object} data - Response data
+ * @return {TextOutput} JSON response
  */
-function doOptions(e) {
-  return ContentService.createTextOutput('')
-    .setMimeType(ContentService.MimeType.TEXT)
-    .setHeader('Access-Control-Allow-Origin', '*')
-    .setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-    .setHeader('Access-Control-Allow-Headers', 'Content-Type')
-    .setHeader('Access-Control-Max-Age', '86400');
+function createMobileResponse(data) {
+  return ContentService.createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 /**
@@ -222,32 +217,32 @@ function doPost(e) {
       // Mobile: Authentication
       case 'mobileLogin':
         response = handleMobileLogin(params);
-        break;
+        return createMobileResponse(response);
         
       case 'mobileLogout':
         response = handleMobileLogout(params);
-        break;
+        return createMobileResponse(response);
         
       // Mobile: Operations
       case 'mobileScanQR':
         response = handleMobileScanQR(params);
-        break;
+        return createMobileResponse(response);
         
       case 'mobileSubmitTransaction':
         response = handleMobileSubmitTransaction(params);
-        break;
+        return createMobileResponse(response);
         
       case 'mobileGetHistory':
         response = handleMobileGetHistory(params);
-        break;
+        return createMobileResponse(response);
         
       case 'mobileGetSummary':
         response = handleMobileGetSummary(params);
-        break;
+        return createMobileResponse(response);
         
       case 'mobileDeleteTransaction':
         response = handleMobileDeleteTransaction(params);
-        break;
+        return createMobileResponse(response);
         
       default:
         // Default: treat as single transaction submission
