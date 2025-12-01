@@ -10,9 +10,6 @@
  * @param {string} password - Password yang akan di-hash
  * @return {string} Hash 64 karakter hexadecimal
  */
-function hashhhhh(){
-  Logger.log(hashPassword('qwerty123'));
-}
 function hashPassword(password) {
   var rawHash = Utilities.computeDigest(
     Utilities.DigestAlgorithm.SHA_256,

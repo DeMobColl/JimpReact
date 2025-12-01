@@ -68,18 +68,6 @@ function doGet(e) {
         response = handleGetCustomerHistory(params);
         break;
         
-      case 'createCustomer':
-        response = handleCreateCustomer(params);
-        break;
-        
-      case 'updateCustomer':
-        response = handleUpdateCustomer(params);
-        break;
-        
-      case 'deleteCustomer':
-        response = handleDeleteCustomer(params);
-        break;
-        
       // User Transactions (Petugas)
       case 'getUserTransactions':
         response = handleGetUserTransactions(params);
@@ -119,9 +107,8 @@ function doGet(e) {
               'health', 'getHistory', 'login', 'verifyToken', 'logout',
               'getUsers', 'getUserActivity', 
               'getCustomers', 'getCustomerByQRHash', 'getCustomerHistory',
-              'createCustomer', 'updateCustomer', 'deleteCustomer',
               'getUserTransactions', 'deleteTransaction', 'submitTransaction',
-              'getConfig','updateConfig','verifyConfigPassword','updateConfigPassword'
+              'getConfig', 'updateConfig', 'verifyConfigPassword', 'updateConfigPassword'
             ],
             POST: [
               'submitTransaction', 'submitBulk', 'importTransactions',
@@ -190,10 +177,6 @@ function doPost(e) {
     
     // Route to appropriate handler based on action
     switch(action) {
-      // ============================================
-      // WEB APP ENDPOINTS (JSONP)
-      // ============================================
-      
       // Transaction Submissions
       case 'submitTransaction':
         response = submitTransaction(params);
@@ -232,45 +215,6 @@ function doPost(e) {
       case 'deleteCustomer':
         response = handleDeleteCustomer(params);
         break;
-      
-      // ============================================
-      // MOBILE APP ENDPOINTS (JSON - Stateless)
-      // ============================================
-      
-      // Mobile: Authentication
-      case 'mobileLogin':
-        response = handleMobileLogin(params);
-        return createJSONResponse(response);
-      
-      // Mobile: QR & Submit
-      case 'mobileScanQR':
-        response = handleMobileScanQR(params);
-        return createJSONResponse(response);
-      
-      case 'mobileSubmitTransaction':
-        response = handleMobileSubmitTransaction(params);
-        return createJSONResponse(response);
-      
-      case 'mobileBulkSubmit':
-        response = handleMobileBulkSubmit(params);
-        return createJSONResponse(response);
-      
-      // Mobile: History
-      case 'mobileGetHistory':
-        response = handleMobileGetHistory(params);
-        return createJSONResponse(response);
-      
-      case 'mobileGetHistorySummary':
-        response = handleMobileGetHistorySummary(params);
-        return createJSONResponse(response);
-      
-      case 'mobileDeleteTransaction':
-        response = handleMobileDeleteTransaction(params);
-        return createJSONResponse(response);
-      
-      case 'mobileBulkDeleteTransactions':
-        response = handleMobileBulkDeleteTransactions(params);
-        return createJSONResponse(response);
         
       default:
         // Default: treat as single transaction submission
@@ -287,15 +231,4 @@ function doPost(e) {
       stack: error.stack || 'No stack trace'
     });
   }
-}
-
-/**
- * Create JSON response (plain JSON, not JSONP) - for mobile
- * @param {object} data - Response data
- * @return {ContentService.TextOutput} JSON response
- */
-function createJSONResponse(data) {
-  return ContentService
-    .createTextOutput(JSON.stringify(data))
-    .setMimeType(ContentService.MimeType.JSON);
 }
