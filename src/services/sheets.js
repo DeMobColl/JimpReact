@@ -441,58 +441,106 @@ export async function getCustomerHistory(customerId) {
 export async function createCustomerInSheet(token, customerData) {
   requestCache.delete("getCustomers_{}");
 
-  try {
-    const response = await createJSONPRequest(
-      "createCustomer",
-      {
-        token: token,
-        blok: customerData.blok,
-        nama: customerData.nama,
+  return requestQueue.add(() =>
+    retryWithBackoff(
+      async () => {
+        if (!SCRIPT_URL) {
+          throw new Error('SCRIPT_URL tidak di-set. Pastikan file .env memiliki VITE_SCRIPT_URL');
+        }
+        
+        const payload = {
+          action: "createCustomer",
+          token: token,
+          blok: customerData.blok,
+          nama: customerData.nama,
+        };
+        
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        return {
+          status: "success",
+          message: "Customer berhasil ditambahkan",
+        };
       },
-      false
-    );
-    return response;
-  } catch (error) {
-    throw error;
-  }
+      2,
+      1000
+    )
+  );
 }
 
 export async function updateCustomerInSheet(token, customerId, customerData) {
   requestCache.delete("getCustomers_{}");
 
-  try {
-    const response = await createJSONPRequest(
-      "updateCustomer",
-      {
-        token: token,
-        customerId: customerId,
-        blok: customerData.blok,
-        nama: customerData.nama,
+  return requestQueue.add(() =>
+    retryWithBackoff(
+      async () => {
+        if (!SCRIPT_URL) {
+          throw new Error('SCRIPT_URL tidak di-set');
+        }
+        
+        const payload = {
+          action: "updateCustomer",
+          token: token,
+          customerId: customerId,
+          blok: customerData.blok,
+          nama: customerData.nama,
+        };
+
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        return {
+          status: "success",
+          message: "Customer berhasil diupdate",
+        };
       },
-      false
-    );
-    return response;
-  } catch (error) {
-    throw error;
-  }
+      2,
+      1000
+    )
+  );
 }
 
 export async function deleteCustomerInSheet(token, customerId) {
   requestCache.delete("getCustomers_{}");
 
-  try {
-    const response = await createJSONPRequest(
-      "deleteCustomer",
-      {
-        token: token,
-        customerId: customerId,
+  return requestQueue.add(() =>
+    retryWithBackoff(
+      async () => {
+        if (!SCRIPT_URL) {
+          throw new Error('SCRIPT_URL tidak di-set');
+        }
+        
+        const payload = {
+          action: "deleteCustomer",
+          token: token,
+          customerId: customerId,
+        };
+
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        return {
+          status: "success",
+          message: "Customer berhasil dihapus",
+        };
       },
-      false
-    );
-    return response;
-  } catch (error) {
-    throw error;
-  }
+      2,
+      1000
+    )
+  );
 }
 
 // ========================================
