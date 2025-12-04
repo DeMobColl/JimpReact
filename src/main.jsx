@@ -4,6 +4,9 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import './assets/main.css';
 
+// Security utilities
+import { setupConsoleSecurity, setupNetworkSecurity } from './utils/security.js';
+
 // PWA utilities
 import { registerServiceWorker, setupInstallPrompt, setupNetworkListeners } from './utils/pwa.js';
 
@@ -16,6 +19,10 @@ window.addEventListener('error', (event) => {
 window.addEventListener('unhandledrejection', (event) => {
   // Promise rejection handling without console output
 });
+
+// Setup security measures
+setupConsoleSecurity();
+setupNetworkSecurity();
 
 // Performance monitoring
 if (import.meta.env.DEV) {

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Html5Qrcode } from 'html5-qrcode';
 import { useToast } from '../hooks/useToast.jsx';
 
-export default function ScanQR() {
+export default function ScanQR({ onBack }) {
   const navigate = useNavigate();
   const toast = useToast();
   const scannerContainer = useRef(null);
@@ -144,6 +144,21 @@ export default function ScanQR() {
   return (
     <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-50 via-purple-50/40 to-violet-50/50 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 px-4 py-2 transition-colors duration-300">
       <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-3xl shadow-2xl shadow-slate-300/50 dark:shadow-none border border-slate-200/60 dark:border-gray-700/60 p-3 md:p-4 w-full max-w-2xl text-center transition-all duration-300">
+        
+        {/* Back Button */}
+        {onBack && (
+          <div className="flex justify-start mb-2">
+            <button
+              onClick={onBack}
+              className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 transition-colors"
+              title="Kembali"
+            >
+              <svg className="w-5 h-5 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          </div>
+        )}
         
         {/* Header Icon */}
         <div className="mb-2">

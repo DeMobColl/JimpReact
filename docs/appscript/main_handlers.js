@@ -55,6 +55,10 @@ function doGet(e) {
         response = handleGetUserActivity(params);
         break;
         
+      case 'bulkDeleteUsers':
+        response = handleBulkDeleteUsers(params);
+        break;
+        
       // Customer Management
       case 'getCustomers':
         response = handleGetCustomers(params);
@@ -66,6 +70,10 @@ function doGet(e) {
         
       case 'getCustomerHistory':
         response = handleGetCustomerHistory(params);
+        break;
+      
+      case 'bulkDeleteCustomers':
+        response = handleBulkDeleteCustomers(params);
         break;
         
       // User Transactions (Petugas)
@@ -198,6 +206,10 @@ function doPost(e) {
         response = handleDeleteUser(params);
         break;
         
+      case 'bulkDeleteUsers':
+        response = handleBulkDeleteUsers(params);
+        break;
+        
       // Customer CRUD (Write Operations)
       case 'createCustomer':
         response = handleCreateCustomer(params);
@@ -213,6 +225,10 @@ function doPost(e) {
         
       case 'importCustomers':
         response = handleImportCustomers(params);
+        break;
+        
+      case 'importUsers':
+        response = handleImportUsers(params);
         break;
         
       // ============================================

@@ -1,5 +1,6 @@
 import { requestQueue, requestCache, retryWithBackoff } from "./requestManager";
 import { measureAsync, apiMetrics } from "../utils/performance";
+import { safeLog, maskObject, maskToken } from "../utils/security";
 
 // SCRIPT_URL is provided via Vite environment variable `VITE_SCRIPT_URL`.
 // Set this in your local `.env` or your deployment environment.
@@ -314,6 +315,21 @@ export async function deleteUserInSheet(token, userId) {
   );
 }
 
+export async function bulkDeleteUsersInSheet(token, userIds) {
+  requestCache.delete(`getUsers_${JSON.stringify({ token })}`);
+
+  // Use JSONP for bulk delete to get response back
+  // Pass userIds as JSON string since JSONP can't handle arrays directly
+  return createJSONPRequest(
+    "bulkDeleteUsers",
+    {
+      token: token,
+      userIds: JSON.stringify(userIds),
+    },
+    false
+  );
+}
+
 // ========================================
 // TRANSACTION FUNCTIONS
 // ========================================
@@ -407,9 +423,9 @@ export async function deleteTransaction(token, txid) {
 // CUSTOMER MANAGEMENT FUNCTIONS
 // ========================================
 
-export async function getCustomersFromSheet() {
+export async function getCustomersFromSheet(skipCache = false) {
   try {
-    const response = await createJSONPRequest("getCustomers");
+    const response = await createJSONPRequest("getCustomers", {}, !skipCache);
     return response;
   } catch (error) {
     throw error;
@@ -543,6 +559,21 @@ export async function deleteCustomerInSheet(token, customerId) {
   );
 }
 
+export async function bulkDeleteCustomersInSheet(token, customerIds) {
+  requestCache.delete("getCustomers_{}");
+
+  // Use JSONP for bulk delete to get response back
+  // Pass customerIds as JSON string since JSONP can't handle arrays directly
+  return createJSONPRequest(
+    "bulkDeleteCustomers",
+    {
+      token: token,
+      customerIds: JSON.stringify(customerIds),
+    },
+    false
+  );
+}
+
 export async function importCustomersFromSheet(token, customers) {
   requestCache.delete("getCustomers_{}");
 
@@ -569,6 +600,40 @@ export async function importCustomersFromSheet(token, customers) {
         return {
           status: "success",
           message: `${customers.length} customer berhasil diimport`,
+        };
+      },
+      2,
+      1000
+    )
+  );
+}
+
+export async function importUsersFromSheet(token, users) {
+  requestCache.delete("getUsers_{}");
+
+  return requestQueue.add(() =>
+    retryWithBackoff(
+      async () => {
+        if (!SCRIPT_URL) {
+          throw new Error('SCRIPT_URL tidak di-set');
+        }
+        
+        const payload = {
+          action: "importUsers",
+          token: token,
+          users: users,
+        };
+
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        return {
+          status: "success",
+          message: `${users.length} user berhasil diimport`,
         };
       },
       2,

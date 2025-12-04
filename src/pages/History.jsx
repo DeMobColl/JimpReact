@@ -7,7 +7,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
-export default function History() {
+export default function History({ onBack }) {
   const { currentUser } = useAuth();
   const toast = useToast();
   const [transactions, setTransactions] = useState([]);
@@ -292,13 +292,26 @@ export default function History() {
             {/* Header */}
             <div className="mb-4">
               <div className="flex justify-between items-start mb-2">
-                <div>
-                  <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 text-transparent bg-clip-text mb-1">
-                    📊 Riwayat Transaksi
-                  </h1>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
-                    Total: {filteredTransactions.length} transaksi • {formatCurrency(totalAmount)}
-                  </p>
+                <div className="flex items-center gap-2">
+                  {onBack && (
+                    <button
+                      onClick={onBack}
+                      className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 transition-colors"
+                      title="Kembali"
+                    >
+                      <svg className="w-5 h-5 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                  )}
+                  <div>
+                    <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 text-transparent bg-clip-text mb-1">
+                      Riwayat Transaksi
+                    </h1>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">
+                      Total: {filteredTransactions.length} transaksi • {formatCurrency(totalAmount)}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <button

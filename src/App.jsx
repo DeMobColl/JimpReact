@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { useAuth } from './hooks/useAuth.jsx';
 import { useDarkMode } from './hooks/useDarkMode.jsx';
@@ -13,13 +13,6 @@ import InstallPrompt from './components/InstallPrompt';
 
 const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
-const ScanQR = lazy(() => import('./pages/ScanQR'));
-const Submit = lazy(() => import('./pages/Submit'));
-const History = lazy(() => import('./pages/History'));
-const MyHistory = lazy(() => import('./pages/MyHistory'));
-const Users = lazy(() => import('./pages/Users'));
-const Customers = lazy(() => import('./pages/Customers'));
-const Config = lazy(() => import('./pages/Config'));
 
 function AppContent() {
   const { currentUser, logout, isAdmin } = useAuth();
@@ -27,6 +20,8 @@ function AppContent() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const location = useLocation();
+  const homeNavigateRef = useRef(null);
+  const [currentView, setCurrentView] = useState('home');
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -51,27 +46,84 @@ function AppContent() {
     logout();
   };
 
+  // Function to navigate within Home component
+  const handleNavigation = (view) => {
+    if (homeNavigateRef.current) {
+      homeNavigateRef.current(view);
+      closeMobileMenu();
+    } else {
+      console.warn('Navigation not ready yet:', view);
+    }
+  };
+
+  // Helper function to get active styles
+  const getActiveButtonClass = (view) => {
+    const baseClass = "px-3 py-2 rounded-lg font-medium transition-all";
+    if (currentView === view) {
+      return `${baseClass} bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-200/50 dark:shadow-none`;
+    }
+    return `${baseClass} text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400`;
+  };
+
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-300 overflow-hidden">
       {/* Navbar */}
       <nav className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-lg shadow-slate-200/50 dark:shadow-none border-b border-slate-200/60 dark:border-gray-700/60 py-3 px-4 md:py-4 md:px-6 flex justify-between items-center flex-shrink-0 relative">
-        <Link
-          to="/"
-          className="font-bold text-lg md:text-xl bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 text-transparent bg-clip-text hover:from-blue-700 hover:to-indigo-700 transition-all"
+        <button
+          onClick={() => handleNavigation('home')}
+          className="font-bold text-lg md:text-xl bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 text-transparent bg-clip-text hover:from-blue-700 hover:to-indigo-700 transition-all cursor-pointer"
         >
           Jimpitan App
-        </Link>
+        </button>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-2 text-sm font-medium">
           {currentUser && (
             <>
-              <NavLink to="/">Home</NavLink>
-              <NavLink to="/scanqr">Scan QR</NavLink>
-              {isAdmin && <NavLink to="/history">Riwayat</NavLink>}
-              {!isAdmin && <NavLink to="/myhistory">Riwayat Saya</NavLink>}
-              {isAdmin && <NavLink to="/users">User</NavLink>}
-              {isAdmin && <NavLink to="/customers">Customers</NavLink>}
+              <button
+                onClick={() => handleNavigation('home')}
+                className={getActiveButtonClass('home')}
+              >
+                Home
+              </button>
+              <button
+                onClick={() => handleNavigation('scanqr')}
+                className={getActiveButtonClass('scanqr')}
+              >
+                Scan QR
+              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => handleNavigation('history')}
+                  className={getActiveButtonClass('history')}
+                >
+                  Riwayat
+                </button>
+              )}
+              {!isAdmin && (
+                <button
+                  onClick={() => handleNavigation('myhistory')}
+                  className={getActiveButtonClass('myhistory')}
+                >
+                  Riwayat Saya
+                </button>
+              )}
+              {isAdmin && (
+                <button
+                  onClick={() => handleNavigation('users')}
+                  className={getActiveButtonClass('users')}
+                >
+                  User
+                </button>
+              )}
+              {isAdmin && (
+                <button
+                  onClick={() => handleNavigation('customers')}
+                  className={getActiveButtonClass('customers')}
+                >
+                  Customers
+                </button>
+              )}
               <button
                 onClick={() => setShowTutorial(true)}
                 className="px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-all flex items-center gap-1.5"
@@ -84,17 +136,17 @@ function AppContent() {
             </>
           )}
 
-          {/* Config Icon (Admin Only) */}
+          {/* Config Button (Admin Only) */}
           {isAdmin && (
-            <Link
-              to="/config"
+            <button
+              onClick={() => handleNavigation('config')}
               className="p-2.5 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 dark:from-gray-700 dark:to-gray-600 hover:shadow-md transition-all duration-200 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
               title="Konfigurasi"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
               </svg>
-            </Link>
+            </button>
           )}
 
           {/* Theme Toggle */}
@@ -126,9 +178,12 @@ function AppContent() {
               </div>
             )}
             {!currentUser ? (
-              <Link to="/login" className="btn-primary btn-sm">
+              <button
+                onClick={() => { window.location.href = '/login'; }}
+                className="btn-primary btn-sm"
+              >
                 Login
-              </Link>
+              </button>
             ) : (
               <button
                 onClick={logout}
@@ -147,15 +202,15 @@ function AppContent() {
         <div className="md:hidden flex items-center gap-2">
           {/* Config Icon (Admin Only) */}
           {isAdmin && currentUser && (
-            <Link
-              to="/config"
+            <button
+              onClick={() => handleNavigation('config')}
               className="p-2 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 dark:from-gray-700 dark:to-gray-600 hover:shadow-md transition-all duration-200 text-slate-600 dark:text-slate-300"
               title="Konfigurasi"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
               </svg>
-            </Link>
+            </button>
           )}
 
           {/* Theme Toggle */}
@@ -208,12 +263,13 @@ function AppContent() {
             <div className="px-4 py-3 space-y-2">
             {currentUser && (
               <>
-                <MobileNavLink to="/" onClick={closeMobileMenu}>Home</MobileNavLink>
-                <MobileNavLink to="/scanqr" onClick={closeMobileMenu}>Scan QR</MobileNavLink>
-                {isAdmin && <MobileNavLink to="/history" onClick={closeMobileMenu}>Riwayat</MobileNavLink>}
-                {!isAdmin && <MobileNavLink to="/myhistory" onClick={closeMobileMenu}>Riwayat Saya</MobileNavLink>}
-                {isAdmin && <MobileNavLink to="/users" onClick={closeMobileMenu}>User</MobileNavLink>}
-                {isAdmin && <MobileNavLink to="/customers" onClick={closeMobileMenu}>Customers</MobileNavLink>}
+                <button onClick={() => { handleNavigation('home'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'home' ? 'bg-blue-500 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-500 dark:hover:text-blue-300'}`}>Home</button>
+                <button onClick={() => { handleNavigation('scanqr'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'scanqr' ? 'bg-blue-500 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-500 dark:hover:text-blue-300'}`}>Scan QR</button>
+                {isAdmin && <button onClick={() => { handleNavigation('history'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'history' ? 'bg-blue-500 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-500 dark:hover:text-blue-300'}`}>Riwayat</button>}
+                {!isAdmin && <button onClick={() => { handleNavigation('myhistory'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'myhistory' ? 'bg-blue-500 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-500 dark:hover:text-blue-300'}`}>Riwayat Saya</button>}
+                {isAdmin && <button onClick={() => { handleNavigation('users'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'users' ? 'bg-blue-500 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-500 dark:hover:text-blue-300'}`}>User</button>}
+                {isAdmin && <button onClick={() => { handleNavigation('customers'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'customers' ? 'bg-blue-500 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-500 dark:hover:text-blue-300'}`}>Customers</button>}
+                {isAdmin && <button onClick={() => { handleNavigation('config'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'config' ? 'bg-blue-500 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-500 dark:hover:text-blue-300'}`}>Konfigurasi</button>}
                 <button
                   onClick={openTutorial}
                   className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg hover:text-blue-500 dark:hover:text-blue-300 flex items-center gap-2"
@@ -228,28 +284,20 @@ function AppContent() {
 
             <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
               {currentUser && (
-                <div className="px-3 py-2 text-xs uppercase tracking-wide text-gray-600 dark:text-gray-400">
-                  {currentUser.name}
-                </div>
-              )}
-              {!currentUser ? (
-                <Link
-                  to="/login"
-                  onClick={closeMobileMenu}
-                  className="block px-3 py-2 text-sm bg-blue-500 text-white rounded-lg text-center"
-                >
-                  Login
-                </Link>
-              ) : (
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 rounded-lg flex items-center gap-2"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                  <span>Logout</span>
-                </button>
+                <>
+                  <div className="px-3 py-2 text-xs uppercase tracking-wide text-gray-600 dark:text-gray-400">
+                    {currentUser.name}
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 rounded-lg flex items-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    <span>Logout</span>
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -258,19 +306,12 @@ function AppContent() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 flex justify-center items-center p-3 md:p-6 overflow-hidden">
+      <main className="flex-1 flex p-3 md:p-6 overflow-hidden">
         <div className="w-full h-full overflow-auto">
           <Suspense fallback={<LoadingSpinner fullscreen loading text="Memuat halaman..." />}>
             <Routes>
               <Route path="/login" element={<Login />} />
-              <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-              <Route path="/scanqr" element={<ProtectedRoute><ScanQR /></ProtectedRoute>} />
-              <Route path="/submit" element={<ProtectedRoute><Submit /></ProtectedRoute>} />
-              <Route path="/history" element={<ProtectedRoute adminOnly><History /></ProtectedRoute>} />
-              <Route path="/myhistory" element={<ProtectedRoute><MyHistory /></ProtectedRoute>} />
-              <Route path="/users" element={<ProtectedRoute adminOnly><Users /></ProtectedRoute>} />
-              <Route path="/customers" element={<ProtectedRoute adminOnly><Customers /></ProtectedRoute>} />
-              <Route path="/config" element={<ProtectedRoute adminOnly><Config /></ProtectedRoute>} />
+              <Route path="/" element={<ProtectedRoute><Home onSetNavigate={(fn) => { homeNavigateRef.current = fn; }} onViewChange={setCurrentView} /></ProtectedRoute>} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
@@ -288,49 +329,9 @@ function AppContent() {
         onClose={() => setShowTutorial(false)}
         userRole={isAdmin ? 'admin' : 'petugas'}
       />
-
       {/* PWA Install Prompt */}
       <InstallPrompt />
     </div>
-  );
-}
-
-// Helper component for navigation links
-function NavLink({ to, children }) {
-  const location = useLocation();
-  const isActive = location.pathname === to;
-  
-  return (
-    <Link
-      to={to}
-      className={`px-3 py-2 rounded-lg font-medium transition-all ${
-        isActive
-          ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-200/50 hover:from-blue-600 hover:to-indigo-600 hover:shadow-lg hover:shadow-blue-300/50'
-          : 'text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400'
-      }`}
-    >
-      {children}
-    </Link>
-  );
-}
-
-// Helper component for mobile navigation links
-function MobileNavLink({ to, onClick, children }) {
-  const location = useLocation();
-  const isActive = location.pathname === to;
-  
-  return (
-    <Link
-      to={to}
-      onClick={onClick}
-      className={`block px-3 py-2 text-sm rounded-lg transition-all ${
-        isActive
-          ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-200/50'
-          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-500 dark:hover:text-blue-300'
-      }`}
-    >
-      {children}
-    </Link>
   );
 }
 

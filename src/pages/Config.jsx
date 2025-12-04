@@ -10,7 +10,7 @@ import {
   updateConfigPassword 
 } from '../services/sheets';
 
-export default function Config() {
+export default function Config({ onBack }) {
   const { token } = useAuth();
   const toast = useToast();
   
@@ -182,7 +182,7 @@ export default function Config() {
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={() => window.history.back()}
+                onClick={onBack}
                 className="flex-1 px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                 disabled={verifying}
               >
@@ -224,6 +224,7 @@ export default function Config() {
     <PageLayout 
       title="⚙️ Konfigurasi Sistem" 
       subtitle="Pengaturan dan kontrol sistem aplikasi"
+      onBack={onBack}
     >
       <div className="max-w-4xl mx-auto space-y-4">
         

@@ -1,15 +1,24 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, lazy, Suspense, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth.jsx';
 import TutorialModal from '../components/TutorialModal.jsx';
+import LoadingSpinner from '../components/LoadingSpinner.jsx';
 
-export default function Home() {
-  const { currentUser, isAdmin } = useAuth();
+// Lazy load page components
+const ScanQR = lazy(() => import('./ScanQR'));
+const Submit = lazy(() => import('./Submit'));
+const History = lazy(() => import('./History'));
+const MyHistory = lazy(() => import('./MyHistory'));
+const Users = lazy(() => import('./Users'));
+const Customers = lazy(() => import('./Customers'));
+const Config = lazy(() => import('./Config'));
+
+function HomeView({ onNavigate, isAdmin, currentUser }) {
   const [showTutorial, setShowTutorial] = useState(false);
 
   return (
-    <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/50 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 px-4 py-2 transition-colors duration-300">
-      <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-3xl shadow-2xl shadow-slate-300/50 dark:shadow-none border border-slate-200/60 dark:border-gray-700/60 p-4 md:p-5 w-full max-w-2xl text-center transition-all duration-300">
+    <>
+      <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/50 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 px-4 py-2 transition-colors duration-300">
+        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-3xl shadow-2xl shadow-slate-300/50 dark:shadow-none border border-slate-200/60 dark:border-gray-700/60 p-4 md:p-5 w-full max-w-2xl text-center transition-all duration-300">
         {/* Logo/Icon */}
         <div className="mb-3">
           <div className="inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-blue-500 to-indigo-500 dark:from-blue-600 dark:to-indigo-600 rounded-2xl shadow-xl shadow-blue-200/50 dark:shadow-blue-900/30">
@@ -38,8 +47,8 @@ export default function Home() {
         {/* Quick Stats (Admin Only) */}
         {isAdmin && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-3">
-            <Link
-              to="/users"
+            <button
+              onClick={() => onNavigate('users')}
               className="bg-gradient-to-br from-blue-50/80 to-indigo-50/80 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-2 border border-blue-200/60 dark:border-blue-700/60 hover:shadow-lg hover:shadow-blue-200/50 dark:hover:shadow-none hover:scale-105 transition-all duration-200 cursor-pointer"
             >
               <div className="flex items-center justify-center mb-1">
@@ -51,10 +60,10 @@ export default function Home() {
               </div>
               <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-0.5">Users</h3>
               <p className="text-[10px] text-slate-500 dark:text-slate-400">Kelola pengguna</p>
-            </Link>
+            </button>
 
-            <Link
-              to="/customers"
+            <button
+              onClick={() => onNavigate('customers')}
               className="bg-gradient-to-br from-orange-50/80 to-amber-50/80 dark:from-orange-900/20 dark:to-amber-900/20 rounded-xl p-2 border border-orange-200/60 dark:border-orange-700/60 hover:shadow-lg hover:shadow-orange-200/50 dark:hover:shadow-none hover:scale-105 transition-all duration-200 cursor-pointer"
             >
               <div className="flex items-center justify-center mb-1">
@@ -66,10 +75,10 @@ export default function Home() {
               </div>
               <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-0.5">Customers</h3>
               <p className="text-[10px] text-slate-500 dark:text-slate-400">Data nasabah</p>
-            </Link>
+            </button>
 
-            <Link
-              to="/history"
+            <button
+              onClick={() => onNavigate('history')}
               className="bg-gradient-to-br from-emerald-50/80 to-teal-50/80 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl p-2 border border-emerald-200/60 dark:border-emerald-700/60 hover:shadow-lg hover:shadow-emerald-200/50 dark:hover:shadow-none hover:scale-105 transition-all duration-200 cursor-pointer"
             >
               <div className="flex items-center justify-center mb-1">
@@ -81,10 +90,10 @@ export default function Home() {
               </div>
               <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-0.5">History</h3>
               <p className="text-[10px] text-slate-500 dark:text-slate-400">Riwayat transaksi</p>
-            </Link>
+            </button>
 
-            <Link
-              to="/scanqr"
+            <button
+              onClick={() => onNavigate('scanqr')}
               className="bg-gradient-to-br from-purple-50/80 to-violet-50/80 dark:from-purple-900/20 dark:to-violet-900/20 rounded-xl p-2 border border-purple-200/60 dark:border-purple-700/60 hover:shadow-lg hover:shadow-purple-200/50 dark:hover:shadow-none hover:scale-105 transition-all duration-200 cursor-pointer"
             >
               <div className="flex items-center justify-center mb-1">
@@ -96,7 +105,7 @@ export default function Home() {
               </div>
               <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-0.5">Scan QR</h3>
               <p className="text-[10px] text-slate-500 dark:text-slate-400">Scan kode QR</p>
-            </Link>
+            </button>
 
             {/* <Link
               to="/config"
@@ -119,8 +128,8 @@ export default function Home() {
         {/* Quick Actions for Petugas */}
         {!isAdmin && (
           <div className="grid grid-cols-2 gap-3 mb-4">
-            <Link
-              to="/scanqr"
+            <button
+              onClick={() => onNavigate('scanqr')}
               className="bg-gradient-to-br from-purple-50/80 to-violet-50/80 dark:from-purple-900/20 dark:to-violet-900/20 rounded-xl p-4 border border-purple-200/60 dark:border-purple-700/60 hover:shadow-lg hover:shadow-purple-200/50 dark:hover:shadow-none hover:scale-105 transition-all duration-200 cursor-pointer"
             >
               <div className="flex items-center justify-center mb-2">
@@ -132,10 +141,10 @@ export default function Home() {
               </div>
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1 text-center">Scan QR</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 text-center">Scan kode nasabah</p>
-            </Link>
+            </button>
 
-            <Link
-              to="/myhistory"
+            <button
+              onClick={() => onNavigate('myhistory')}
               className="bg-gradient-to-br from-blue-50/80 to-indigo-50/80 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-4 border border-blue-200/60 dark:border-blue-700/60 hover:shadow-lg hover:shadow-blue-200/50 dark:hover:shadow-none hover:scale-105 transition-all duration-200 cursor-pointer"
             >
               <div className="flex items-center justify-center mb-2">
@@ -147,7 +156,7 @@ export default function Home() {
               </div>
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1 text-center">Riwayat Saya</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 text-center">Setoran saya</p>
-            </Link>
+            </button>
           </div>
         )}
 
@@ -201,6 +210,77 @@ export default function Home() {
         onClose={() => setShowTutorial(false)}
         userRole={isAdmin ? 'admin' : 'petugas'}
       />
+    </div>
+    </>
+  );
+}
+
+export default function Home({ onSetNavigate, onViewChange }) {
+  const { currentUser, isAdmin } = useAuth();
+  const [currentView, setCurrentView] = useState('home');
+
+  const handleNavigate = (view) => {
+    setCurrentView(view);
+  };
+
+  const handleBackToHome = () => {
+    setCurrentView('home');
+  };
+
+  // Expose navigation function to App.jsx
+  useEffect(() => {
+    if (onSetNavigate) {
+      onSetNavigate(handleNavigate);
+    }
+  }, [onSetNavigate]);
+
+  // Notify parent when view changes
+  useEffect(() => {
+    if (onViewChange) {
+      onViewChange(currentView);
+    }
+  }, [currentView, onViewChange]);
+
+  return (
+    <div className="w-full h-full">
+      {currentView === 'home' && (
+        <HomeView onNavigate={handleNavigate} isAdmin={isAdmin} currentUser={currentUser} />
+      )}
+      {currentView === 'users' && (
+        <Suspense fallback={<LoadingSpinner fullscreen loading text="Memuat User..." />}>
+          <Users onBack={handleBackToHome} />
+        </Suspense>
+      )}
+      {currentView === 'customers' && (
+        <Suspense fallback={<LoadingSpinner fullscreen loading text="Memuat Customers..." />}>
+          <Customers onBack={handleBackToHome} />
+        </Suspense>
+      )}
+      {currentView === 'history' && (
+        <Suspense fallback={<LoadingSpinner fullscreen loading text="Memuat Riwayat..." />}>
+          <History onBack={handleBackToHome} />
+        </Suspense>
+      )}
+      {currentView === 'myhistory' && (
+        <Suspense fallback={<LoadingSpinner fullscreen loading text="Memuat Riwayat Saya..." />}>
+          <MyHistory onBack={handleBackToHome} />
+        </Suspense>
+      )}
+      {currentView === 'scanqr' && (
+        <Suspense fallback={<LoadingSpinner fullscreen loading text="Memuat Scan QR..." />}>
+          <ScanQR onBack={handleBackToHome} />
+        </Suspense>
+      )}
+      {currentView === 'submit' && (
+        <Suspense fallback={<LoadingSpinner fullscreen loading text="Memuat Submit..." />}>
+          <Submit onBack={handleBackToHome} />
+        </Suspense>
+      )}
+      {currentView === 'config' && (
+        <Suspense fallback={<LoadingSpinner fullscreen loading text="Memuat Config..." />}>
+          <Config onBack={handleBackToHome} />
+        </Suspense>
+      )}
     </div>
   );
 }

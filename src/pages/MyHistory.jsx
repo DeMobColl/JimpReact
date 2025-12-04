@@ -22,7 +22,7 @@ function formatDateTime(ts) {
   return d.toLocaleString('id-ID', { hour12: false });
 }
 
-export default function MyHistory() {
+export default function MyHistory({ onBack }) {
   const { currentUser, token } = useAuth();
   const toast = useToast();
   const [loading, setLoading] = useState(false);
@@ -155,7 +155,7 @@ export default function MyHistory() {
   };
 
   return (
-    <PageLayout title="Riwayat Saya">
+    <PageLayout title="Riwayat Saya" onBack={onBack}>
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
         <div className="p-4 sm:p-6">
           {/* Header & Search */}

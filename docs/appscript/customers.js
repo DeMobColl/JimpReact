@@ -921,3 +921,119 @@ function updateCustomerStats(customer_id, nominal, timestamp) {
     Logger.log('Error updating customer stats: ' + error.toString());
   }
 }
+
+/**
+ * Handle bulk delete customers
+ * @param {object} params - {token, customerIds}
+ * @return {object} Delete result with status, deleted count, totalRequested
+ */
+function handleBulkDeleteCustomers(params) {
+  try {
+    var token = params.token;
+    var customerIds = params.customerIds;
+    
+    // Handle JSON string parameter (from JSONP)
+    if (typeof customerIds === 'string') {
+      try {
+        customerIds = JSON.parse(customerIds);
+      } catch(parseErr) {
+        return {
+          status: 'error',
+          message: 'Format customerIds tidak valid: ' + parseErr.toString()
+        };
+      }
+    }
+    
+    // Ensure customerIds is array
+    if (!Array.isArray(customerIds)) {
+      return {
+        status: 'error',
+        message: 'customerIds harus berupa array'
+      };
+    }
+    
+    if (customerIds.length === 0) {
+      return {
+        status: 'error',
+        message: 'customerIds array kosong'
+      };
+    }
+    
+    // Verify admin
+    var verification = verifyAdminToken(token);
+    if (!verification.isValid) {
+      return {
+        status: 'error',
+        message: verification.message
+      };
+    }
+    
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var customersSheet = ss.getSheetByName('Customers');
+    var data = customersSheet.getDataRange().getValues();
+    
+    // For customers, we don't have self-protection like users
+    // Just collect customers to delete by their IDs
+    var validCustomerIds = [];
+    var excluded = [];
+    
+    // Filter valid customer IDs (those that exist in sheet)
+    for (var i = 0; i < customerIds.length; i++) {
+      var found = false;
+      for (var j = 1; j < data.length; j++) {
+        if (data[j][0] === customerIds[i]) {
+          found = true;
+          break;
+        }
+      }
+      if (found) {
+        validCustomerIds.push(customerIds[i]);
+      } else {
+        excluded.push({
+          id: customerIds[i],
+          name: 'Customer tidak ditemukan'
+        });
+      }
+    }
+    
+    // If no valid customers to delete, return info
+    if (validCustomerIds.length === 0) {
+      return {
+        status: 'warning',
+        message: 'Tidak ada customer yang bisa dihapus',
+        deleted: 0,
+        excluded: excluded,
+        totalRequested: customerIds.length
+      };
+    }
+    
+    // Collect rows to delete (delete from bottom to top to avoid index shifting)
+    var rowsToDelete = [];
+    
+    for (var i = 1; i < data.length; i++) {
+      var customerId = data[i][0];
+      if (validCustomerIds.indexOf(customerId) !== -1) {
+        rowsToDelete.push(i);
+      }
+    }
+    
+    // Delete rows in reverse order
+    for (var i = rowsToDelete.length - 1; i >= 0; i--) {
+      customersSheet.deleteRow(rowsToDelete[i] + 1);
+    }
+    
+    return {
+      status: 'success',
+      message: rowsToDelete.length + ' customer berhasil dihapus',
+      deleted: rowsToDelete.length,
+      excluded: excluded,
+      totalRequested: customerIds.length
+    };
+    
+  } catch(error) {
+    return {
+      status: 'error',
+      message: 'Error saat bulk delete customers: ' + error.toString()
+    };
+  }
+}

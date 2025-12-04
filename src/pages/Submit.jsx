@@ -6,7 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import { getCustomerByQRHash, submitToSheet } from '../services/sheets';
 
-export default function Submit() {
+export default function Submit({ onBack }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { currentUser, token } = useAuth();
@@ -114,7 +114,7 @@ export default function Submit() {
 
   if (loading) {
     return (
-      <PageLayout title="Submit Transaksi" subtitle="Mencatat jimpitan warga">
+      <PageLayout title="Submit Transaksi" subtitle="Mencatat jimpitan warga" onBack={onBack}>
         <LoadingSpinner text="Memuat data customer..." />
       </PageLayout>
     );
@@ -122,7 +122,7 @@ export default function Submit() {
 
   if (!qrHash) {
     return (
-      <PageLayout title="Submit Transaksi" subtitle="Mencatat jimpitan warga">
+      <PageLayout title="Submit Transaksi" subtitle="Mencatat jimpitan warga" onBack={onBack}>
         <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-6 text-center">
           <div className="text-6xl mb-4">⚠️</div>
           <h3 className="text-xl font-bold text-yellow-800 dark:text-yellow-200 mb-2">
@@ -144,7 +144,7 @@ export default function Submit() {
 
   if (!customer) {
     return (
-      <PageLayout title="Submit Transaksi" subtitle="Mencatat jimpitan warga">
+      <PageLayout title="Submit Transaksi" subtitle="Mencatat jimpitan warga" onBack={onBack}>
         <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-6 text-center">
           <div className="text-6xl mb-4">❌</div>
           <h3 className="text-xl font-bold text-red-800 dark:text-red-200 mb-2">
@@ -165,7 +165,7 @@ export default function Submit() {
   }
 
   return (
-    <PageLayout title="Submit Transaksi" subtitle="Mencatat jimpitan warga">
+    <PageLayout title="Submit Transaksi" subtitle="Mencatat jimpitan warga" onBack={onBack}>
       <div className="max-w-2xl mx-auto">
         {/* Customer Info Card */}
         <div className="bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-xl p-4 md:p-6 mb-4 md:mb-6 shadow-lg">

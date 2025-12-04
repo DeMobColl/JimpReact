@@ -4,6 +4,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ConfirmDialog from '../components/ConfirmDialog';
 import QRCard from '../components/QRCard';
 import ImportCustomerModal from '../components/ImportCustomerModal';
+import BulkDownloadQRModal from '../components/BulkDownloadQRModal';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import {
@@ -12,9 +13,10 @@ import {
   updateCustomerInSheet,
   deleteCustomerInSheet,
   importCustomersFromSheet,
+  bulkDeleteCustomersInSheet,
 } from '../services/sheets';
 
-export default function Customers() {
+export default function Customers({ onBack }) {
   const { currentUser, token } = useAuth();
   const toast = useToast();
 
@@ -49,15 +51,25 @@ export default function Customers() {
   // Import modal
   const [showImportModal, setShowImportModal] = useState(false);
 
+  // Bulk download QR modal
+  const [showBulkDownloadQR, setShowBulkDownloadQR] = useState(false);
+
+  // Bulk delete state
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState(new Set());
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  const [deleteResult, setDeleteResult] = useState(null);
+  const [showDeleteResult, setShowDeleteResult] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   // Load customers
   useEffect(() => {
     loadCustomers();
   }, []);
 
-  async function loadCustomers() {
+  async function loadCustomers(skipCache = false) {
     try {
       setLoading(true);
-      const response = await getCustomersFromSheet();
+      const response = await getCustomersFromSheet(skipCache);
       
       if (response.status === 'success') {
         
@@ -206,12 +218,84 @@ export default function Customers() {
         toast.success('Customer berhasil dihapus');
         setShowDeleteConfirm(false);
         setCustomerToDelete(null);
-        await loadCustomers();
+        await loadCustomers(true);
       } else {
-        toast.error(response.message || 'Gagal menghapus customer');
+        toast.error(response.message || 'Operasi gagal');
       }
     } catch (error) {
-      toast.error('Error saat menghapus customer', error.message);
+      toast.error('Error saat hapus customer', error.message);
+    }
+  }
+
+  function toggleCustomerSelection(customerId) {
+    const newSelected = new Set(selectedCustomerIds);
+    if (newSelected.has(customerId)) {
+      newSelected.delete(customerId);
+    } else {
+      newSelected.add(customerId);
+    }
+    setSelectedCustomerIds(newSelected);
+  }
+
+  function toggleSelectAllCustomers() {
+    if (selectedCustomerIds.size > 0) {
+      setSelectedCustomerIds(new Set());
+    } else {
+      const selectableCustomerIds = paginatedCustomers.map(c => c.id);
+      setSelectedCustomerIds(new Set(selectableCustomerIds));
+    }
+  }
+
+  function handleBulkDeleteClick() {
+    if (selectedCustomerIds.size === 0) {
+      toast.warning('Pilih customer yang akan dihapus');
+      return;
+    }
+    setShowBulkDeleteConfirm(true);
+  }
+
+  async function handleBulkDeleteConfirm() {
+    if (!token) {
+      toast.error('Unauthorized: No token');
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const customerIdsToDelete = Array.from(selectedCustomerIds);
+      const response = await bulkDeleteCustomersInSheet(token, customerIdsToDelete);
+      
+      if (!response) {
+        throw new Error('No response from server');
+      }
+      
+      // Wait for backend to process
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Set delete result for popup
+      setDeleteResult({
+        status: response.status,
+        deleted: response.deleted || 0,
+        excluded: response.excluded || [],
+        totalRequested: response.totalRequested || customerIdsToDelete.length
+      });
+      setShowDeleteResult(true);
+      setShowBulkDeleteConfirm(false);
+      setSelectedCustomerIds(new Set());
+      
+      // Reload customers - make sure this completes
+      try {
+        await loadCustomers(true);
+      } catch (reloadErr) {
+        console.error('Error reloading customers:', reloadErr);
+        toast.error('Gagal me-refresh data customers');
+      }
+    } catch (err) {
+      console.error('Bulk delete error:', err);
+      toast.error(err.message || 'Gagal menghapus customers');
+      setShowBulkDeleteConfirm(false);
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -260,10 +344,34 @@ export default function Customers() {
 
   return (
     <PageLayout 
-      title="📋 Manajemen Customer" 
+      title="Manajemen Customer" 
       subtitle="Kelola data customer dan QR code"
+      onBack={onBack}
       actions={
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          {selectedCustomerIds.size > 0 && (
+            <button
+              onClick={handleBulkDeleteClick}
+              className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl"
+              title={`Hapus ${selectedCustomerIds.size} customer`}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Hapus {selectedCustomerIds.size}
+            </button>
+          )}
+          <button
+            onClick={() => setShowBulkDownloadQR(true)}
+            disabled={customers.length === 0}
+            className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Download QR codes"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            📥 Download QR
+          </button>
           <button
             onClick={() => setShowImportModal(true)}
             className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105"
@@ -273,6 +381,17 @@ export default function Customers() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             📥 Import
+          </button>
+          <button
+            onClick={() => loadCustomers(true)}
+            disabled={loading}
+            className="px-4 py-2 bg-gray-500 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg"
+            title="Refresh data customer"
+          >
+            <svg className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Refresh
           </button>
           <button
             onClick={handleCreate}
@@ -295,8 +414,8 @@ export default function Customers() {
 
       {/* Search Filters */}
       {customers.length > 0 && (
-        <div className="mb-4 flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 relative">
+        <div className="mb-4 flex flex-col sm:flex-row gap-3 items-center">
+          <div className="flex-1 relative w-full">
             <input
               type="text"
               placeholder="Cari nama customer..."
@@ -313,7 +432,7 @@ export default function Customers() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
-          <div className="flex-1 relative">
+          <div className="flex-1 relative w-full">
             <input
               type="text"
               placeholder="Cari blok..."
@@ -330,17 +449,33 @@ export default function Customers() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
           </div>
-          {(searchName || searchBlok) && (
+          <div className="flex gap-2 w-full sm:w-auto">
+            {(searchName || searchBlok) && (
+              <button
+                onClick={() => {
+                  setSearchName('');
+                  setSearchBlok('');
+                }}
+                className="flex-1 sm:flex-initial px-4 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors"
+              >
+                Reset
+              </button>
+            )}
             <button
-              onClick={() => {
-                setSearchName('');
-                setSearchBlok('');
-              }}
-              className="px-4 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors"
+              onClick={toggleSelectAllCustomers}
+              className={`flex-1 sm:flex-initial px-4 py-3 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap ${
+                selectedCustomerIds.size > 0
+                  ? 'bg-orange-500 hover:bg-orange-600 text-white'
+                  : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200'
+              }`}
+              title={selectedCustomerIds.size > 0 ? 'Batal Pilih' : 'Pilih Semua'}
             >
-              Reset
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {selectedCustomerIds.size > 0 ? `Pilih (${selectedCustomerIds.size})` : 'Pilih Semua'}
             </button>
-          )}
+          </div>
         </div>
       )}
 
@@ -396,8 +531,16 @@ export default function Customers() {
                 key={customer.id}
                 className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
               >
-                {/* Card Header */}
-                <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-3 text-white text-center">
+                {/* Card Header - Selectable Title */}
+                <div
+                  onClick={() => toggleCustomerSelection(customer.id)}
+                  className={`bg-gradient-to-r from-blue-500 to-purple-600 p-3 text-white text-center cursor-pointer hover:shadow-md transition-all ${
+                    selectedCustomerIds.has(customer.id)
+                      ? 'from-orange-500 to-orange-600 ring-2 ring-white ring-inset'
+                      : 'hover:from-blue-600 hover:to-purple-700'
+                  }`}
+                  title={selectedCustomerIds.has(customer.id) ? 'Batal Pilih' : 'Pilih Customer'}
+                >
                   <div className="text-xs opacity-75 mb-1">Blok {customer.blok || '-'}</div>
                   <div className="text-lg font-bold mb-1">{customer.id || '-'}</div>
                   <div className="text-sm font-semibold">{customer.nama || '-'}</div>
@@ -610,6 +753,123 @@ export default function Customers() {
         onClose={() => setShowImportModal(false)}
         onImport={handleImportCustomers}
       />
+
+      {/* Bulk Download QR Modal */}
+      <BulkDownloadQRModal
+        isOpen={showBulkDownloadQR}
+        onClose={() => setShowBulkDownloadQR(false)}
+        customers={customers}
+      />
+
+      {/* Bulk Delete Confirmation Dialog */}
+      {showBulkDeleteConfirm && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowBulkDeleteConfirm(false)}
+        >
+          <div 
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+              <span className="text-3xl">⚠️</span> Hapus {selectedCustomerIds.size} Customer?
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              Apakah Anda yakin ingin menghapus {selectedCustomerIds.size} customer yang dipilih? Tindakan ini tidak dapat dibatalkan.
+            </p>
+            
+            {isDeleting && (
+              <div className="flex flex-col items-center justify-center mb-6">
+                <svg className="w-12 h-12 text-blue-500 animate-spin mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Menghapus customer...</p>
+              </div>
+            )}
+            
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowBulkDeleteConfirm(false)}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleBulkDeleteConfirm}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isDeleting ? 'Menghapus...' : 'Hapus'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Delete Result Modal */}
+      {showDeleteResult && deleteResult && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowDeleteResult(false)}
+        >
+          <div 
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              {deleteResult.status === 'success' ? (
+                <span className="text-4xl">✅</span>
+              ) : (
+                <span className="text-4xl">⚠️</span>
+              )}
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+                {deleteResult.status === 'success' ? 'Penghapusan Berhasil' : 'Penghapusan Selesai'}
+              </h2>
+            </div>
+
+            {/* Result Statistics */}
+            <div className="space-y-3 mb-6">
+              <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-200 dark:border-green-800">
+                <div className="text-sm text-green-600 dark:text-green-400">Dihapus</div>
+                <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+                  {deleteResult.deleted}
+                </div>
+              </div>
+
+              {deleteResult.excluded && deleteResult.excluded.length > 0 && (
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                  <div className="text-sm text-yellow-600 dark:text-yellow-400">Dikecualikan</div>
+                  <div className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">
+                    {deleteResult.excluded.length}
+                  </div>
+                  <div className="mt-2 text-xs space-y-1">
+                    {deleteResult.excluded.map((item, idx) => (
+                      <div key={idx} className="text-yellow-700 dark:text-yellow-400">
+                        • {item.name || item.id} - {item.reason || 'Alasan tidak tersedia'}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="text-sm text-blue-600 dark:text-blue-400">Total Diminta</div>
+                <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                  {deleteResult.totalRequested}
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowDeleteResult(false)}
+              className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors"
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
+      )}
     </PageLayout>
   );
 }
