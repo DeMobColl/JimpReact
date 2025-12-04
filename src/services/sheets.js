@@ -543,6 +543,40 @@ export async function deleteCustomerInSheet(token, customerId) {
   );
 }
 
+export async function importCustomersFromSheet(token, customers) {
+  requestCache.delete("getCustomers_{}");
+
+  return requestQueue.add(() =>
+    retryWithBackoff(
+      async () => {
+        if (!SCRIPT_URL) {
+          throw new Error('SCRIPT_URL tidak di-set');
+        }
+        
+        const payload = {
+          action: "importCustomers",
+          token: token,
+          customers: customers,
+        };
+
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        return {
+          status: "success",
+          message: `${customers.length} customer berhasil diimport`,
+        };
+      },
+      2,
+      1000
+    )
+  );
+}
+
 // ========================================
 // CONFIG FUNCTIONS
 // ========================================

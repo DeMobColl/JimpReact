@@ -3,6 +3,7 @@ import PageLayout from '../components/PageLayout';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ConfirmDialog from '../components/ConfirmDialog';
 import QRCard from '../components/QRCard';
+import ImportCustomerModal from '../components/ImportCustomerModal';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import {
@@ -10,6 +11,7 @@ import {
   createCustomerInSheet,
   updateCustomerInSheet,
   deleteCustomerInSheet,
+  importCustomersFromSheet,
 } from '../services/sheets';
 
 export default function Customers() {
@@ -43,6 +45,9 @@ export default function Customers() {
   // QR Code display
   const [showQRCard, setShowQRCard] = useState(false);
   const [qrCustomer, setQrCustomer] = useState(null);
+
+  // Import modal
+  const [showImportModal, setShowImportModal] = useState(false);
 
   // Load customers
   useEffect(() => {
@@ -220,6 +225,31 @@ export default function Customers() {
     setQrCustomer(null);
   }
 
+  async function handleImportCustomers(customersToImport) {
+    if (!token) {
+      toast.error('Token tidak ditemukan, silakan login ulang');
+      return;
+    }
+
+    if (currentUser?.role !== 'admin') {
+      toast.error('Hanya admin yang dapat mengimport customer');
+      return;
+    }
+
+    try {
+      const response = await importCustomersFromSheet(token, customersToImport);
+      
+      if (response.status === 'success') {
+        toast.success(`Import berhasil: ${customersToImport.length} customer ditambahkan`);
+        await loadCustomers();
+      } else {
+        toast.error(response.message || 'Gagal mengimport customer');
+      }
+    } catch (error) {
+      toast.error('Error saat mengimport customer', error.message);
+    }
+  }
+
   if (loading) {
     return (
       <PageLayout title="Manajemen Customer" subtitle="Kelola data customer dan QR code">
@@ -233,15 +263,27 @@ export default function Customers() {
       title="📋 Manajemen Customer" 
       subtitle="Kelola data customer dan QR code"
       actions={
-        <button
-          onClick={handleCreate}
-          className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Tambah
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowImportModal(true)}
+            className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105"
+            title="Import customer dari file Excel"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            📥 Import
+          </button>
+          <button
+            onClick={handleCreate}
+            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Tambah
+          </button>
+        </div>
       }
     >
       {/* Stats Info */}
@@ -561,6 +603,13 @@ export default function Customers() {
 
       {/* QR Code Modal */}
       {showQRCard && qrCustomer && <QRCard customer={qrCustomer} onClose={handleCloseQR} />}
+
+      {/* Import Customer Modal */}
+      <ImportCustomerModal 
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImport={handleImportCustomers}
+      />
     </PageLayout>
   );
 }

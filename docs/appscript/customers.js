@@ -501,6 +501,117 @@ function handleDeleteCustomer(params) {
 }
 
 /**
+ * Import customers in bulk (Admin only)
+ * Params: token, customers (array of {blok, nama})
+ */
+function handleImportCustomers(params) {
+  try {
+    var token = params.token || '';
+    var adminCheck = verifyAdminToken(token);
+    
+    if (!adminCheck.isValid) {
+      return {
+        status: 'error',
+        message: adminCheck.message
+      };
+    }
+    
+    var customers = params.customers || [];
+    
+    if (!Array.isArray(customers) || customers.length === 0) {
+      return {
+        status: 'error',
+        message: 'Data customer tidak valid atau kosong'
+      };
+    }
+    
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var customersSheet = ss.getSheetByName('Customers');
+    
+    if (!customersSheet) {
+      return {
+        status: 'error',
+        message: 'Sheet "Customers" tidak ditemukan'
+      };
+    }
+    
+    var existingData = customersSheet.getDataRange().getValues();
+    var importedCount = 0;
+    var skippedCount = 0;
+    var duplicateEntries = [];
+    
+    // Track existing entries for deduplication
+    var existingEntries = {};
+    for (var i = 1; i < existingData.length; i++) {
+      var nama = String(existingData[i][2] || '').toLowerCase().trim();
+      var blok = String(existingData[i][1] || '').trim();
+      var key = blok + '|' + nama;
+      existingEntries[key] = true;
+    }
+    
+    // Import each customer
+    for (var j = 0; j < customers.length; j++) {
+      var customer = customers[j];
+      var blok = String(customer.blok || '').trim();
+      var nama = String(customer.nama || '').toLowerCase().trim();
+      
+      if (!blok || !nama) {
+        skippedCount++;
+        continue;
+      }
+      
+      var key = blok + '|' + nama;
+      
+      // Check if customer already exists
+      if (existingEntries[key]) {
+        skippedCount++;
+        duplicateEntries.push(blok + ' - ' + customer.nama);
+        continue;
+      }
+      
+      // Generate new Customer ID
+      var customerId = generateCustomerId(customersSheet);
+      
+      // Generate QR Hash
+      var qrHash = generateQRHash(customerId);
+      
+      // Add new row
+      var newRow = [
+        customerId,           // A: Customer ID
+        blok,                 // B: Blok/ID Number
+        customer.nama,        // C: Nama Lengkap
+        qrHash,               // D: QR Hash
+        new Date(),           // E: Tanggal Dibuat
+        0,                    // F: Total Setoran
+        ''                    // G: Last Transaction
+      ];
+      
+      customersSheet.appendRow(newRow);
+      importedCount++;
+      
+      // Mark as added to prevent duplicates within batch
+      existingEntries[key] = true;
+    }
+    
+    return {
+      status: 'success',
+      message: 'Import berhasil',
+      data: {
+        imported: importedCount,
+        skipped: skippedCount,
+        duplicates: duplicateEntries
+      }
+    };
+    
+  } catch(error) {
+    return {
+      status: 'error',
+      message: 'Error saat import customer: ' + error.toString()
+    };
+  }
+}
+
+/**
  * Get user transactions (Petugas only - their own transactions)
  * Params: token
  */
@@ -793,7 +904,7 @@ function updateCustomerStats(customer_id, nominal, timestamp) {
         // Update customer stats
         var totalCell = customersSheet.getRange(i + 1, 6); // F: Total Setoran
         totalCell.setValue(newTotal);
-        totalCell.setNumberFormat('0'); // Plain number format
+        totalCell.setNumberFormat('"Rp" #,##0'); // Plain number format
         
         customersSheet.getRange(i + 1, 7).setValue(timestamp || ''); // G: Last Transaction
         

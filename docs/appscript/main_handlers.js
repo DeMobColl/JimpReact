@@ -113,7 +113,7 @@ function doGet(e) {
             POST: [
               'submitTransaction', 'submitBulk', 'importTransactions',
               'createUser', 'updateUser', 'deleteUser',
-              'createCustomer', 'updateCustomer', 'deleteCustomer'
+              'createCustomer', 'updateCustomer', 'deleteCustomer', 'importCustomers'
             ]
           }
         };
@@ -209,6 +209,10 @@ function doPost(e) {
         
       case 'deleteCustomer':
         response = handleDeleteCustomer(params);
+        break;
+        
+      case 'importCustomers':
+        response = handleImportCustomers(params);
         break;
         
       // ============================================
