@@ -112,7 +112,7 @@ export default function ImportCustomerModal({ isOpen, onClose, onImport }) {
         {!loading && step === 'upload' && (
           <div className="space-y-4">
             {/* Instructions */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg text-sm text-blue-700 dark:text-blue-300">
+            <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-sm text-red-700 dark:text-red-300">
               <h3 className="font-semibold mb-2">📋 Format File yang Diperlukan:</h3>
               <ul className="list-disc list-inside space-y-1">
                 <li>Kolom 1: <strong>Blok</strong> (ID/No Blok)</li>
@@ -131,7 +131,7 @@ export default function ImportCustomerModal({ isOpen, onClose, onImport }) {
                 type="file"
                 onChange={handleFileChange}
                 accept=".xlsx,.xls,.csv"
-                className="w-full px-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                className="w-full px-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-red-500 focus:border-transparent cursor-pointer"
               />
               {file && (
                 <div className="mt-2 text-sm text-green-600 dark:text-green-400">

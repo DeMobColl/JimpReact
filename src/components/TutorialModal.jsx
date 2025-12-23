@@ -273,7 +273,7 @@ export default function TutorialModal({ isOpen, onClose, userRole = 'petugas' })
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex-shrink-0 flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
+        <div className="flex-shrink-0 flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-red-500 to-red-600 text-white">
           <div>
             <h2 className="text-2xl font-bold flex items-center gap-2">
               📚 Tutorial Penggunaan
@@ -311,7 +311,7 @@ export default function TutorialModal({ isOpen, onClose, userRole = 'petugas' })
                   <button
                     key={tutorial.id}
                     onClick={() => handleSelectTutorial(tutorial.id)}
-                    className="group bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 hover:from-blue-50 hover:to-indigo-50 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 rounded-xl p-6 border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 hover:shadow-xl hover:scale-105 text-left"
+                    className="group bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 hover:from-red-50 hover:to-white dark:hover:from-red-900/30 dark:hover:to-gray-900/30 rounded-xl p-6 border-2 border-gray-200 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-500 transition-all duration-200 hover:shadow-xl hover:scale-105 text-left"
                   >
                     <div className="flex items-start gap-4">
                       <div className="text-4xl flex-shrink-0">
@@ -390,7 +390,7 @@ export default function TutorialModal({ isOpen, onClose, userRole = 'petugas' })
                     </div>
                     <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300"
+                        className="h-full bg-gradient-to-r from-red-500 to-red-600 transition-all duration-300"
                         style={{ width: `${((currentStep + 1) / activeTutorial.steps.length) * 100}%` }}
                       />
                     </div>
@@ -398,9 +398,9 @@ export default function TutorialModal({ isOpen, onClose, userRole = 'petugas' })
                 </div>
 
                 {/* Step Content */}
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-6 border border-blue-200 dark:border-blue-700 mb-6">
+                <div className="bg-gradient-to-br from-red-50 to-white dark:from-red-900/20 dark:to-gray-900/20 rounded-xl p-6 border border-red-200 dark:border-red-700 mb-6">
                   <div className="flex items-start gap-3 mb-4">
-                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 text-white rounded-full flex items-center justify-center font-bold text-lg">
+                    <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 text-white rounded-full flex items-center justify-center font-bold text-lg">
                       {currentStep + 1}
                     </div>
                     <div className="flex-1">
@@ -460,7 +460,7 @@ export default function TutorialModal({ isOpen, onClose, userRole = 'petugas' })
                   {currentStep < activeTutorial.steps.length - 1 ? (
                     <button
                       onClick={handleNext}
-                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 flex items-center gap-2"
+                      className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 flex items-center gap-2"
                     >
                       Selanjutnya
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -470,7 +470,7 @@ export default function TutorialModal({ isOpen, onClose, userRole = 'petugas' })
                   ) : (
                     <button
                       onClick={handleBack}
-                      className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 flex items-center gap-2"
+                      className="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 flex items-center gap-2"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

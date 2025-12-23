@@ -148,7 +148,7 @@ export default function ScanQR({ onBack, onNavigate }) {
   };
 
   return (
-    <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-50 via-purple-50/40 to-violet-50/50 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 px-4 py-2 transition-colors duration-300">
+    <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-50 via-red-50/40 to-white/50 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 px-4 py-2 transition-colors duration-300">
       <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-3xl shadow-2xl shadow-slate-300/50 dark:shadow-none border border-slate-200/60 dark:border-gray-700/60 p-3 md:p-4 w-full max-w-2xl text-center transition-all duration-300">
         
         {/* Back Button */}
@@ -168,7 +168,7 @@ export default function ScanQR({ onBack, onNavigate }) {
         
         {/* Header Icon */}
         <div className="mb-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-purple-500 to-violet-500 dark:from-purple-600 dark:to-violet-600 rounded-2xl shadow-xl shadow-purple-200/50 dark:shadow-purple-900/30">
+          <div className="inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-red-500 to-red-600 dark:from-red-600 dark:to-red-700 rounded-2xl shadow-xl shadow-red-200/50 dark:shadow-red-900/30">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 md:h-10 md:w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
             </svg>
@@ -220,7 +220,7 @@ export default function ScanQR({ onBack, onNavigate }) {
           {!isScanning ? (
             <button
               onClick={startScan}
-              className="px-5 py-2.5 text-sm font-semibold bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white rounded-xl shadow-xl shadow-purple-200/50 hover:shadow-2xl hover:shadow-purple-300/50 dark:shadow-purple-900/30 dark:hover:shadow-purple-800/40 hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+              className="px-5 py-2.5 text-sm font-semibold bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl shadow-xl shadow-red-200/50 hover:shadow-2xl hover:shadow-red-300/50 dark:shadow-red-900/30 dark:hover:shadow-red-800/40 hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
@@ -230,7 +230,7 @@ export default function ScanQR({ onBack, onNavigate }) {
           ) : (
             <button
               onClick={stopScan}
-              className="px-5 py-2.5 text-sm font-semibold bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-xl shadow-xl shadow-red-200/50 hover:shadow-2xl hover:shadow-red-300/50 dark:shadow-red-900/30 dark:hover:shadow-red-800/40 hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+              className="px-5 py-2.5 text-sm font-semibold bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl shadow-xl shadow-red-200/50 hover:shadow-2xl hover:shadow-red-300/50 dark:shadow-red-900/30 dark:hover:shadow-red-800/40 hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clipRule="evenodd" />
@@ -244,7 +244,7 @@ export default function ScanQR({ onBack, onNavigate }) {
         <div className="mt-2">
           <button
             onClick={onBack}
-            className="px-4 py-2 text-xs font-medium bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-gray-600 hover:border-purple-400 dark:hover:border-purple-500 hover:bg-gradient-to-r hover:from-purple-50 hover:to-violet-50 dark:hover:from-purple-900/20 dark:hover:to-violet-900/20 rounded-xl shadow-md hover:shadow-lg hover:shadow-purple-200/50 dark:hover:shadow-none transition-all duration-200 flex items-center justify-center gap-1.5 mx-auto"
+            className="px-4 py-2 text-xs font-medium bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-500 hover:bg-gradient-to-r hover:from-red-50 hover:to-white dark:hover:from-red-900/20 dark:hover:to-gray-900/20 rounded-xl shadow-md hover:shadow-lg hover:shadow-red-200/50 dark:hover:shadow-none transition-all duration-200 flex items-center justify-center gap-1.5 mx-auto"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />

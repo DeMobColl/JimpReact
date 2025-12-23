@@ -169,7 +169,7 @@ export default function ImportUserModal({ isOpen, onClose, onImport }) {
               )}
 
               {/* Info */}
-              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                 <h3 className="font-semibold text-blue-900 dark:text-blue-300 mb-2">Format File:</h3>
                 <ul className="text-xs text-blue-700 dark:text-blue-400 space-y-1">
                   <li>• Kolom: Nama, Username, Password, Role</li>

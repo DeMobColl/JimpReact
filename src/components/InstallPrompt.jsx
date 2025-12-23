@@ -71,7 +71,7 @@ export default function InstallPrompt() {
   return (
     <>
       {/* Install Prompt Banner */}
-      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 shadow-2xl z-50 animate-slide-in">
+      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-red-600 to-red-700 text-white p-4 shadow-2xl z-50 animate-slide-in">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-start gap-3 flex-1">
             <svg className="w-8 h-8 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -128,7 +128,7 @@ export default function InstallPrompt() {
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-scale-in">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center">
                   <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
                   </svg>
@@ -178,14 +178,14 @@ export default function InstallPrompt() {
                     await handleInstall();
                     handleCloseInstructions();
                   }}
-                  className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-colors"
+                  className="flex-1 px-4 py-2.5 bg-gradient-to-r from-red-600 to-red-700 text-white font-medium rounded-lg hover:from-red-700 hover:to-red-800 transition-colors"
                 >
                   Install Sekarang
                 </button>
               )}
             </div>
 
-            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
               <p className="text-xs text-blue-800 dark:text-blue-300">
                 💡 <strong>Tip:</strong> Aplikasi yang terinstall bisa diakses langsung dari home screen dan bekerja lebih cepat!
               </p>

@@ -416,7 +416,7 @@ export default function QRCard({ customer, onClose }) {
         <div className="flex-1 overflow-y-auto p-6 pt-4">
 
         {/* Customer Info */}
-        <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg p-4 mb-4">
+        <div className="bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg p-4 mb-4">
           <div className="text-sm opacity-90 mb-1">Nama Customer</div>
           <div className="text-xl font-bold mb-2">{customer.nama}</div>
           <div className="flex justify-between text-sm">
@@ -435,7 +435,7 @@ export default function QRCard({ customer, onClose }) {
             onClick={() => setSelectedType('simple')}
             className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-all ${
               selectedType === 'simple'
-                ? 'bg-purple-500 text-white shadow-lg'
+                ? 'bg-red-500 text-white shadow-lg'
                 : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
             }`}
           >

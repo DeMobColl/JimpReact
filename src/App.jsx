@@ -60,18 +60,18 @@ function AppContent() {
   const getActiveButtonClass = (view) => {
     const baseClass = "px-3 py-2 rounded-lg font-medium transition-all";
     if (currentView === view) {
-      return `${baseClass} bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-200/50 dark:shadow-none`;
+      return `${baseClass} bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md shadow-red-200/50 dark:shadow-none`;
     }
-    return `${baseClass} text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400`;
+    return `${baseClass} text-slate-700 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400`;
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-300 overflow-hidden">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-white via-red-50/20 to-white/80 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 text-slate-800 dark:text-slate-100 transition-colors duration-300 overflow-hidden">
       {/* Navbar */}
       <nav className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-lg shadow-slate-200/50 dark:shadow-none border-b border-slate-200/60 dark:border-gray-700/60 py-3 px-4 md:py-4 md:px-6 flex justify-between items-center flex-shrink-0 relative">
         <button
           onClick={() => handleNavigation('home')}
-          className="font-bold text-lg md:text-xl bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 text-transparent bg-clip-text hover:from-blue-700 hover:to-indigo-700 transition-all cursor-pointer"
+          className="font-bold text-lg md:text-xl bg-gradient-to-r from-red-600 to-red-700 dark:from-red-400 dark:to-red-500 text-transparent bg-clip-text hover:from-red-700 hover:to-red-800 transition-all cursor-pointer"
         >
           Jimpitan App
         </button>
@@ -140,7 +140,7 @@ function AppContent() {
           {isAdmin && (
             <button
               onClick={() => handleNavigation('config')}
-              className="p-2.5 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 dark:from-gray-700 dark:to-gray-600 hover:shadow-md transition-all duration-200 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400"
+              className="p-2.5 rounded-lg bg-gradient-to-br from-red-100 to-red-50 dark:from-gray-700 dark:to-gray-600 hover:shadow-md transition-all duration-200 text-slate-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400"
               title="Konfigurasi"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -152,7 +152,7 @@ function AppContent() {
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2.5 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 dark:from-gray-700 dark:to-gray-600 hover:shadow-md transition-all duration-200"
+            className="p-2.5 rounded-lg bg-gradient-to-br from-red-100 to-red-50 dark:from-gray-700 dark:to-gray-600 hover:shadow-md transition-all duration-200"
             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {isDark ? (
@@ -169,7 +169,7 @@ function AppContent() {
           <div className="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-gray-600">
             {currentUser && (
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white font-bold text-sm">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center text-white font-bold text-sm">
                   {currentUser.name.charAt(0).toUpperCase()}
                 </div>
                 <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -187,7 +187,7 @@ function AppContent() {
             ) : (
               <button
                 onClick={logout}
-                className="p-2.5 rounded-lg bg-gradient-to-r from-rose-100 to-red-100 dark:from-rose-900/30 dark:to-red-900/30 hover:from-rose-200 hover:to-red-200 dark:hover:from-rose-900/50 dark:hover:to-red-900/50 text-rose-600 dark:text-rose-400 transition-all hover:shadow-md"
+                className="p-2.5 rounded-lg bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-900/30 dark:to-gray-800/30 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-900/50 dark:hover:to-gray-800/50 text-gray-600 dark:text-gray-400 transition-all hover:shadow-md"
                 title="Logout"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

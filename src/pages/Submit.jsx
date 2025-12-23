@@ -130,7 +130,7 @@ export default function Submit({ onBack, qrHash: propsQrHash }) {
           </p>
           <button
             onClick={() => navigate('/scan-qr')}
-            className="px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white font-semibold rounded-lg transition-colors"
+            className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors"
           >
             Scan QR Code
           </button>
@@ -165,7 +165,7 @@ export default function Submit({ onBack, qrHash: propsQrHash }) {
     <PageLayout title="Submit Transaksi" subtitle="Mencatat jimpitan warga" onBack={onBack}>
       <div className="max-w-2xl mx-auto">
         {/* Customer Info Card */}
-        <div className="bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-xl p-4 md:p-6 mb-4 md:mb-6 shadow-lg">
+        <div className="bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl p-4 md:p-6 mb-4 md:mb-6 shadow-lg">
           <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
             <div className="w-12 h-12 md:w-16 md:h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl md:text-3xl">
               👤
@@ -210,7 +210,7 @@ export default function Submit({ onBack, qrHash: propsQrHash }) {
                   placeholder="0"
                   required
                   disabled={submitting}
-                  className="w-full pl-12 pr-4 py-2 md:py-3 text-base md:text-lg font-semibold border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full pl-12 pr-4 py-2 md:py-3 text-base md:text-lg font-semibold border-2 border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-red-500 focus:ring-2 focus:ring-red-200 dark:focus:ring-red-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 hidden md:block">
@@ -238,7 +238,7 @@ export default function Submit({ onBack, qrHash: propsQrHash }) {
               <button
                 type="submit"
                 disabled={submitting || !formData.nominal}
-                className="flex-1 px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white text-sm md:text-base font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-sm md:text-base font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {submitting ? (
                   <>
