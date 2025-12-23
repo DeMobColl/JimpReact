@@ -1,10 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Html5Qrcode } from 'html5-qrcode';
 import { useToast } from '../hooks/useToast.jsx';
 
-export default function ScanQR({ onBack }) {
-  const navigate = useNavigate();
+export default function ScanQR({ onBack, onNavigate }) {
   const toast = useToast();
   const scannerContainer = useRef(null);
   const [isScanning, setIsScanning] = useState(false);
@@ -105,33 +103,41 @@ export default function ScanQR({ onBack }) {
     // Scan hash customer (10 karakter hexadecimal)
     const cleanText = decodedText.trim();
       
-      if (cleanText.length === 10 && /^[A-F0-9]+$/i.test(cleanText)) {
-        
-        // Stop immediately to prevent multiple scans
-        setIsScanning(false);
-        isScanningRef.current = false;
-        
-        const hashUpper = cleanText.toUpperCase();
-        const targetUrl = `/submit?qrHash=${hashUpper}`;
-        
-        if (html5QrCodeRef.current) {
-          html5QrCodeRef.current.stop()
-            .then(() => {
-              html5QrCodeRef.current = null;
-              setMessage('QR Hash terdeteksi! Mengambil data customer...');
-              toast.success('QR Code berhasil discan!');
-              navigate(targetUrl);
-            })
-            .catch((e) => {
-              html5QrCodeRef.current = null;
-              toast.success('QR Code berhasil discan!');
-              navigate(targetUrl);
-            });
-        } else {
-          toast.success('QR Code berhasil discan!');
-          navigate(targetUrl);
-        }
+    if (cleanText.length === 10 && /^[A-F0-9]+$/i.test(cleanText)) {
+      
+      // Stop immediately to prevent multiple scans
+      setIsScanning(false);
+      isScanningRef.current = false;
+      
+      const hashUpper = cleanText.toUpperCase();
+      
+      if (html5QrCodeRef.current) {
+        html5QrCodeRef.current.stop()
+          .then(() => {
+            html5QrCodeRef.current = null;
+            setMessage('QR Hash terdeteksi! Mengambil data customer...');
+            toast.success('QR Code berhasil discan!');
+            // Use state-based navigation with QR hash
+            if (onNavigate) {
+              onNavigate('submit', { qrHash: hashUpper });
+            }
+          })
+          .catch((e) => {
+            html5QrCodeRef.current = null;
+            toast.success('QR Code berhasil discan!');
+            // Use state-based navigation with QR hash
+            if (onNavigate) {
+              onNavigate('submit', { qrHash: hashUpper });
+            }
+          });
       } else {
+        toast.success('QR Code berhasil discan!');
+        // Use state-based navigation with QR hash
+        if (onNavigate) {
+          onNavigate('submit', { qrHash: hashUpper });
+        }
+      }
+    } else {
       setError(`Format hash tidak valid: "${cleanText}". Hash harus 10 karakter hexadecimal.`);
       setTimeout(() => setError(''), 3000);
     }
@@ -237,7 +243,7 @@ export default function ScanQR({ onBack }) {
         {/* Back Button */}
         <div className="mt-2">
           <button
-            onClick={() => navigate('/')}
+            onClick={onBack}
             className="px-4 py-2 text-xs font-medium bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-gray-600 hover:border-purple-400 dark:hover:border-purple-500 hover:bg-gradient-to-r hover:from-purple-50 hover:to-violet-50 dark:hover:from-purple-900/20 dark:hover:to-violet-900/20 rounded-xl shadow-md hover:shadow-lg hover:shadow-purple-200/50 dark:hover:shadow-none transition-all duration-200 flex items-center justify-center gap-1.5 mx-auto"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">

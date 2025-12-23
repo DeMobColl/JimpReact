@@ -218,13 +218,18 @@ function HomeView({ onNavigate, isAdmin, currentUser }) {
 export default function Home({ onSetNavigate, onViewChange }) {
   const { currentUser, isAdmin } = useAuth();
   const [currentView, setCurrentView] = useState('home');
+  const [qrHash, setQrHash] = useState(null);
 
-  const handleNavigate = (view) => {
+  const handleNavigate = (view, data = null) => {
     setCurrentView(view);
+    if (data?.qrHash) {
+      setQrHash(data.qrHash);
+    }
   };
 
   const handleBackToHome = () => {
     setCurrentView('home');
+    setQrHash(null);
   };
 
   // Expose navigation function to App.jsx
@@ -268,12 +273,12 @@ export default function Home({ onSetNavigate, onViewChange }) {
       )}
       {currentView === 'scanqr' && (
         <Suspense fallback={<LoadingSpinner fullscreen loading text="Memuat Scan QR..." />}>
-          <ScanQR onBack={handleBackToHome} />
+          <ScanQR onBack={handleBackToHome} onNavigate={handleNavigate} />
         </Suspense>
       )}
       {currentView === 'submit' && (
         <Suspense fallback={<LoadingSpinner fullscreen loading text="Memuat Submit..." />}>
-          <Submit onBack={handleBackToHome} />
+          <Submit onBack={handleBackToHome} qrHash={qrHash} />
         </Suspense>
       )}
       {currentView === 'config' && (

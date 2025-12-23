@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import PageLayout from '../components/PageLayout';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import { getCustomerByQRHash, submitToSheet } from '../services/sheets';
 
-export default function Submit({ onBack }) {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+export default function Submit({ onBack, qrHash: propsQrHash }) {
   const { currentUser, token } = useAuth();
   const toast = useToast();
 
@@ -19,7 +16,7 @@ export default function Submit({ onBack }) {
     nominal: ''
   });
 
-  const qrHash = searchParams.get('qrHash');
+  const qrHash = propsQrHash;
 
   useEffect(() => {
     if (!qrHash) {
