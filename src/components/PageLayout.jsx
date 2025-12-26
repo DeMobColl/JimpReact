@@ -17,12 +17,12 @@ export default function PageLayout({ title, subtitle, children, actions, onBack 
                   </svg>
                 </button>
               )}
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-slate-600 dark:from-slate-100 dark:to-slate-300 truncate">
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 text-transparent bg-clip-text">
                   {title}
                 </h1>
                 {subtitle && (
-                  <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-400">
+                  <p className="mt-1.5 text-xs text-slate-600 dark:text-slate-400">
                     {subtitle}
                   </p>
                 )}

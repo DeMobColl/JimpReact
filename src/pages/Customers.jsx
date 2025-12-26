@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import PageLayout from '../components/PageLayout';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ConfirmDialog from '../components/ConfirmDialog';
 import QRCard from '../components/QRCard';
@@ -336,80 +335,110 @@ export default function Customers({ onBack }) {
 
   if (loading) {
     return (
-      <PageLayout title="Manajemen Customer" subtitle="Kelola data customer dan QR code">
-        <LoadingSpinner text="Memuat data customer..." />
-      </PageLayout>
+      <div className="h-full flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/50 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 transition-colors duration-300">
+        <div className="flex-1 overflow-auto p-3 md:p-4">
+          <div className="max-w-4xl mx-auto">
+            <LoadingSpinner text="Memuat data customer..." />
+          </div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <PageLayout 
-      title="Manajemen Customer" 
-      subtitle="Kelola data customer dan QR code"
-      onBack={onBack}
-      actions={
-        <div className="flex gap-2 flex-wrap">
-          {selectedCustomerIds.size > 0 && (
-            <button
-              onClick={handleBulkDeleteClick}
-              className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl"
-              title={`Hapus ${selectedCustomerIds.size} customer`}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              Hapus {selectedCustomerIds.size}
-            </button>
-          )}
-          <button
-            onClick={() => setShowBulkDownloadQR(true)}
-            disabled={customers.length === 0}
-            className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Download QR codes"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            📥 Download QR
-          </button>
-          <button
-            onClick={() => setShowImportModal(true)}
-            className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105"
-            title="Import customer dari file Excel"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            📥 Import
-          </button>
-          <button
-            onClick={() => loadCustomers(true)}
-            disabled={loading}
-            className="px-4 py-2 bg-gray-500 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg"
-            title="Refresh data customer"
-          >
-            <svg className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Refresh
-          </button>
-          <button
-            onClick={handleCreate}
-            className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Tambah
-          </button>
-        </div>
-      }
-    >
+    <div className="h-full flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/50 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 transition-colors duration-300">
+      <div className="flex-1 overflow-auto p-3 md:p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-xl shadow-slate-300/50 dark:shadow-none border border-slate-200/60 dark:border-gray-700/60 p-4 md:p-5">
+            
+            {/* Header */}
+            <div className="mb-4">
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex items-center gap-2">
+                  {onBack && (
+                    <button
+                      onClick={onBack}
+                      className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-gray-700 transition-colors"
+                      title="Kembali"
+                    >
+                      <svg className="w-5 h-5 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                  )}
+                  <div>
+                    <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 text-transparent bg-clip-text mb-1">
+                      📦 Manajemen Customer
+                    </h1>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">
+                      Total: {filteredCustomers.length} customer • Halaman {currentPage} dari {totalPages || 1}
+                      {selectedCustomerIds.size > 0 && <span className="ml-2 font-semibold text-orange-600 dark:text-orange-400">• {selectedCustomerIds.size} dipilih</span>}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2 flex-wrap justify-end">
+                  <button
+                    onClick={() => loadCustomers(true)}
+                    disabled={loading}
+                    className="px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-slate-500 to-gray-500 hover:from-slate-600 hover:to-gray-600 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1"
+                    title="Refresh data customer"
+                  >
+                    <svg className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span className="hidden sm:inline">Refresh</span>
+                  </button>
+                  {selectedCustomerIds.size > 0 && (
+                    <button
+                      onClick={handleBulkDeleteClick}
+                      className="px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      <span className="hidden sm:inline">Hapus {selectedCustomerIds.size}</span>
+                      <span className="sm:hidden">Hapus</span>
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setShowBulkDownloadQR(true)}
+                    disabled={customers.length === 0}
+                    className="px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Download QR codes"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    <span className="hidden sm:inline">Download QR</span>
+                  </button>
+                  <button
+                    onClick={() => setShowImportModal(true)}
+                    className="px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1"
+                    title="Import customer dari file Excel"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    <span className="hidden sm:inline">Import</span>
+                  </button>
+                  <button
+                    onClick={handleCreate}
+                    className="px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span className="hidden sm:inline">Tambah</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="space-y-3">
       {/* Stats Info */}
-      <div className="mb-4">
-        <div className="text-sm text-gray-600 dark:text-gray-400">
-          Total: <strong>{customers.length}</strong> customer • Halaman {currentPage} dari {totalPages || 1}
-        </div>
+      <div className="text-xs text-gray-600 dark:text-gray-400">
+        Total: <strong>{customers.length}</strong> customer • Halaman {currentPage} dari {totalPages || 1}
       </div>
 
       {/* Search Filters */}
@@ -642,6 +671,10 @@ export default function Customers({ onBack }) {
           )}
         </>
       )}
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Create/Edit Form Modal */}
       {showForm && (
@@ -870,6 +903,6 @@ export default function Customers({ onBack }) {
           </div>
         </div>
       )}
-    </PageLayout>
+    </div>
   );
 }
