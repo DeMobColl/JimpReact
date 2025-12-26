@@ -62,15 +62,15 @@ export default function ConfirmDialog({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
       onClick={onClose}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-md"></div>
       
       {/* Dialog */}
       <div 
-        className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all"
+        className="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-2xl rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all border border-white/30 dark:border-gray-700/30"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with gradient */}
@@ -95,8 +95,8 @@ export default function ConfirmDialog({
           
           {/* Additional Info */}
           {additionalInfo && (
-            <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-700/50">
+              <p className="text-sm text-red-600 dark:text-red-300">
                 {additionalInfo}
               </p>
             </div>
@@ -113,7 +113,7 @@ export default function ConfirmDialog({
           </button>
           <button
             onClick={onConfirm}
-            className={`flex-1 px-4 py-2.5 font-semibold text-white rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-lg hover:shadow-xl hover:scale-105 ${currentVariant.button}`}
+            className={`flex-1 px-4 py-2.5 font-semibold text-white rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-lg hover:shadow-xl hover:scale-105 border border-red-300/50 ${currentVariant.button}`}
           >
             {confirmText}
           </button>

@@ -49,34 +49,45 @@ export default function Login() {
   };
 
   return (
-    <div className="h-full flex items-center justify-center w-full bg-gradient-to-br from-slate-50 to-slate-200 dark:from-gray-900 dark:to-gray-800 rounded-2xl md:rounded-3xl shadow-2xl p-4 md:p-6 lg:p-8">
-      <div className="bg-white dark:bg-gray-900 dark:text-gray-100 rounded-2xl md:rounded-3xl shadow-lg p-4 md:p-6 lg:p-8 w-full max-w-md transition-colors duration-500">
-        <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-slate-700 dark:text-slate-200 mb-4 md:mb-5 lg:mb-6">
-          Login Page
-        </h1>
+    <div className="h-full flex items-center justify-center w-full bg-gradient-to-br from-red-50 via-white to-red-100 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 rounded-2xl md:rounded-3xl shadow-2xl p-4 md:p-6 lg:p-8">
+      <div className="bg-white dark:bg-gray-800 dark:text-gray-100 rounded-3xl shadow-2xl shadow-red-200/50 dark:shadow-none border-2 border-red-200 dark:border-red-700/50 p-6 md:p-8 w-full max-w-md transition-colors duration-500">
+        
+        {/* Header dengan Red Banner */}
+        <div className="bg-gradient-to-r from-red-600 to-red-500 dark:from-red-700 dark:to-red-600 rounded-2xl p-6 mb-6 text-center -mx-6 -mt-8 rounded-b-none">
+          <div className="mb-3">
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+          <h1 className="text-2xl font-black text-white mb-1">JIMPITAN</h1>
+          <p className="text-sm text-red-100 font-semibold">Manajemen Iuran Digital</p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs md:text-sm font-medium mb-1">Username</label>
+            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Username</label>
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               type="text"
-              placeholder="Masukkan username"
-              className="w-full p-2 md:p-3 text-sm md:text-base border border-gray-300 dark:border-gray-700 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+              placeholder="Masukkan username Anda"
+              className="w-full px-4 py-3 text-sm border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 transition-all"
               required
               disabled={isLoading}
             />
           </div>
 
           <div>
-            <label className="block text-xs md:text-sm font-medium mb-1">Password</label>
+            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Password</label>
             <input
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               type="password"
-              placeholder="Masukkan password"
-              className="w-full p-2 md:p-3 text-sm md:text-base border border-gray-300 dark:border-gray-700 rounded-lg md:rounded-xl focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+              placeholder="Masukkan password Anda"
+              className="w-full px-4 py-3 text-sm border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 transition-all"
               required
               disabled={isLoading}
             />
@@ -85,19 +96,39 @@ export default function Login() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-2 md:py-3 text-sm md:text-base bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold rounded-lg md:rounded-xl shadow-xl shadow-red-200/50 hover:shadow-2xl hover:shadow-red-300/50 transition-all duration-200 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="w-full py-3 text-base font-bold bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white rounded-xl shadow-lg shadow-red-200/50 dark:shadow-red-900/30 hover:shadow-xl hover:shadow-red-300/50 dark:hover:shadow-red-800/40 transition-all duration-200 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
           >
-            {isLoading ? 'Memproses...' : 'Masuk'}
+            {isLoading ? (
+              <>
+                <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Memproses...
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h12.75M11 20H3a2 2 0 01-2-2V6a2 2 0 012-2h8" />
+                </svg>
+                Login Sekarang
+              </>
+            )}
           </button>
         </form>
 
         {error && (
-          <p className="mt-3 md:mt-4 text-xs md:text-sm text-red-600 dark:text-red-400 font-medium bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg md:rounded-xl p-2 md:p-3 animate-fade-in">
-            {error}
-          </p>
+          <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl animate-fade-in">
+            <p className="text-sm text-red-700 dark:text-red-400 font-semibold flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {error}
+            </p>
+          </div>
         )}
 
-        <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-4 md:mt-5 text-center">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-6 text-center">
           Selamat datang di aplikasi Jimpitan.
         </p>
 

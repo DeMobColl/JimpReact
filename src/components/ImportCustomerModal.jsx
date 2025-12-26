@@ -88,8 +88,8 @@ export default function ImportCustomerModal({ isOpen, onClose, onImport }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full p-6">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-[60] p-4">
+      <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-2xl rounded-xl shadow-2xl max-w-2xl w-full p-6 border border-white/30 dark:border-gray-700/30">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white">

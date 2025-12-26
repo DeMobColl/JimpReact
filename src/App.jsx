@@ -126,7 +126,7 @@ function AppContent() {
               )}
               <button
                 onClick={() => setShowTutorial(true)}
-                className="px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-all flex items-center gap-1.5"
+                className="px-3 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400 transition-all flex items-center gap-1.5"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
@@ -140,7 +140,7 @@ function AppContent() {
           {isAdmin && (
             <button
               onClick={() => handleNavigation('config')}
-              className="p-2.5 rounded-lg bg-gradient-to-br from-red-100 to-red-50 dark:from-gray-700 dark:to-gray-600 hover:shadow-md transition-all duration-200 text-slate-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400"
+              className="p-2.5 rounded-lg bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 hover:shadow-md transition-all duration-200 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
               title="Konfigurasi"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -152,7 +152,7 @@ function AppContent() {
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2.5 rounded-lg bg-gradient-to-br from-red-100 to-red-50 dark:from-gray-700 dark:to-gray-600 hover:shadow-md transition-all duration-200"
+            className="p-2.5 rounded-lg bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 hover:shadow-md transition-all duration-200"
             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {isDark ? (
@@ -204,7 +204,7 @@ function AppContent() {
           {isAdmin && currentUser && (
             <button
               onClick={() => handleNavigation('config')}
-              className="p-2 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 dark:from-gray-700 dark:to-gray-600 hover:shadow-md transition-all duration-200 text-slate-600 dark:text-slate-300"
+              className="p-2 rounded-lg bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 hover:shadow-md transition-all duration-200 text-red-600 dark:text-red-400"
               title="Konfigurasi"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -216,7 +216,7 @@ function AppContent() {
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 dark:from-gray-700 dark:to-gray-600 hover:shadow-md transition-all duration-200"
+            className="p-2 rounded-lg bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 hover:shadow-md transition-all duration-200"
             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {isDark ? (
@@ -233,7 +233,7 @@ function AppContent() {
           {/* Hamburger Button */}
           <button
             onClick={toggleMobileMenu}
-            className="p-2 text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-300 focus:outline-none"
+            className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-300 focus:outline-none"
             aria-label="Toggle menu"
           >
             {!isMobileMenuOpen ? (
@@ -263,13 +263,13 @@ function AppContent() {
             <div className="px-4 py-3 space-y-2">
             {currentUser && (
               <>
-                <button onClick={() => { handleNavigation('home'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'home' ? 'bg-blue-500 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-500 dark:hover:text-blue-300'}`}>Home</button>
-                <button onClick={() => { handleNavigation('scanqr'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'scanqr' ? 'bg-blue-500 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-500 dark:hover:text-blue-300'}`}>Scan QR</button>
-                {isAdmin && <button onClick={() => { handleNavigation('history'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'history' ? 'bg-blue-500 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-500 dark:hover:text-blue-300'}`}>Riwayat</button>}
-                {!isAdmin && <button onClick={() => { handleNavigation('myhistory'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'myhistory' ? 'bg-blue-500 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-500 dark:hover:text-blue-300'}`}>Riwayat Saya</button>}
-                {isAdmin && <button onClick={() => { handleNavigation('users'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'users' ? 'bg-blue-500 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-500 dark:hover:text-blue-300'}`}>User</button>}
-                {isAdmin && <button onClick={() => { handleNavigation('customers'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'customers' ? 'bg-blue-500 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-500 dark:hover:text-blue-300'}`}>Customers</button>}
-                {isAdmin && <button onClick={() => { handleNavigation('config'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'config' ? 'bg-blue-500 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-500 dark:hover:text-blue-300'}`}>Konfigurasi</button>}
+                <button onClick={() => { handleNavigation('home'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'home' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400'}`}>Home</button>
+                <button onClick={() => { handleNavigation('scanqr'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'scanqr' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400'}`}>Scan QR</button>
+                {isAdmin && <button onClick={() => { handleNavigation('history'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'history' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400'}`}>Riwayat</button>}
+                {!isAdmin && <button onClick={() => { handleNavigation('myhistory'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'myhistory' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400'}`}>Riwayat Saya</button>}
+                {isAdmin && <button onClick={() => { handleNavigation('users'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'users' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400'}`}>User</button>}
+                {isAdmin && <button onClick={() => { handleNavigation('customers'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'customers' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400'}`}>Customers</button>}
+                {isAdmin && <button onClick={() => { handleNavigation('config'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'config' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400'}`}>Konfigurasi</button>}
                 <button
                   onClick={openTutorial}
                   className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg hover:text-blue-500 dark:hover:text-blue-300 flex items-center gap-2"
@@ -290,7 +290,7 @@ function AppContent() {
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900 rounded-lg flex items-center gap-2"
+                    className="w-full text-left px-3 py-2 text-sm bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 rounded-lg flex items-center gap-2 font-medium"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

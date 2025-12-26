@@ -265,11 +265,11 @@ export default function TutorialModal({ isOpen, onClose, userRole = 'petugas' })
 
   return (
     <div 
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/40 backdrop-blur-md z-[60] flex items-center justify-center p-4"
       onClick={handleClose}
     >
       <div 
-        className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden"
+        className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-2xl rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-white/30 dark:border-gray-700/30"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -278,7 +278,7 @@ export default function TutorialModal({ isOpen, onClose, userRole = 'petugas' })
             <h2 className="text-2xl font-bold flex items-center gap-2">
               📚 Tutorial Penggunaan
             </h2>
-            <p className="text-sm text-blue-100 mt-1">
+            <p className="text-sm text-red-100 mt-1">
               {userRole === 'admin' ? 'Panduan untuk Administrator' : 'Panduan untuk Petugas'}
             </p>
           </div>

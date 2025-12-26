@@ -392,7 +392,7 @@ export default function Users({ onBack }) {
   }, [searchTerm, selectedRole]);
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/50 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 transition-colors duration-300">
+    <div className="h-full flex flex-col bg-gradient-to-br from-red-50 via-white/40 to-red-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 transition-colors duration-300">
       <div className="flex-1 overflow-auto p-3 md:p-4">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-xl shadow-slate-300/50 dark:shadow-none border border-slate-200/60 dark:border-gray-700/60 p-4 md:p-5">
@@ -413,7 +413,7 @@ export default function Users({ onBack }) {
                     </button>
                   )}
                   <div>
-                    <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 text-transparent bg-clip-text mb-1">
+                    <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-red-600 to-orange-600 dark:from-red-400 dark:to-orange-400 text-transparent bg-clip-text mb-1">
                       👥 Manajemen User
                     </h1>
                     <p className="text-xs text-slate-600 dark:text-slate-400">
@@ -465,7 +465,7 @@ export default function Users({ onBack }) {
                   </button>
                   <button
                     onClick={startAdd}
-                    className="px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1"
+                    className="px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-red-500/80 to-orange-500/80 backdrop-blur-md hover:from-red-600 hover:to-orange-600 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1 border border-red-300/50"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -503,7 +503,7 @@ export default function Users({ onBack }) {
                           <span className={`px-2 py-0.5 rounded text-[10px] font-medium uppercase ${
                             activity.role === 'admin' 
                               ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200'
-                              : 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200'
+                              : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200'
                           }`}>
                             {activity.role}
                           </span>
@@ -531,7 +531,7 @@ export default function Users({ onBack }) {
                   placeholder="Cari nama, username, atau ID..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-gray-700 border border-slate-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
+                  className="w-full pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-gray-700 border border-slate-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:border-transparent transition-all"
                 />
                 <svg className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -542,7 +542,7 @@ export default function Users({ onBack }) {
                 <select
                   value={selectedRole}
                   onChange={(e) => setSelectedRole(e.target.value)}
-                  className="flex-1 px-2 py-1.5 text-xs bg-white dark:bg-gray-700 border border-slate-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
+                  className="flex-1 px-2 py-1.5 text-xs bg-white dark:bg-gray-700 border border-slate-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:border-transparent transition-all"
                 >
                   <option value="">Semua Role</option>
                   <option value="admin">Admin</option>
@@ -597,7 +597,7 @@ export default function Users({ onBack }) {
                             <span className={`px-2 py-0.5 rounded text-[10px] font-medium uppercase ${
                               user.role === 'admin' 
                                 ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200'
-                                : 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200'
+                                : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200'
                             }`}>
                               {user.role}
                             </span>
@@ -616,7 +616,7 @@ export default function Users({ onBack }) {
                       <div className="flex gap-1.5" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => startEdit(user)}
-                          className="px-2 py-1 text-xs font-medium text-white bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 rounded-md transition-all duration-200 flex items-center gap-1"
+                          className="px-2 py-1 text-xs font-medium text-white bg-gradient-to-r from-red-500/80 to-orange-500/80 backdrop-blur-md hover:from-red-600 hover:to-orange-600 rounded-md transition-all duration-200 flex items-center gap-1 border border-red-300/50"
                         >
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -685,9 +685,9 @@ export default function Users({ onBack }) {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-500 to-indigo-500 p-5 text-white">
+            <div className="bg-gradient-to-r from-red-500/80 to-orange-500/80 backdrop-blur-md p-5 text-white border-b border-red-300/50">
               <div className="flex items-center gap-3">
-                <div className="bg-blue-600/20 p-3 rounded-full">
+                <div className="bg-red-600/30 backdrop-blur-sm p-3 rounded-full">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     {isEditing ? (
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -790,7 +790,7 @@ export default function Users({ onBack }) {
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="flex-1 px-4 py-2.5 font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    className="flex-1 px-4 py-2.5 font-semibold text-white bg-gradient-to-r from-red-500/80 to-orange-500/80 backdrop-blur-md hover:from-red-600 hover:to-orange-600 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 border border-red-300/50"
                   >
                     {isSaving ? (
                       <span className="flex items-center justify-center gap-2">
@@ -943,11 +943,11 @@ export default function Users({ onBack }) {
                       </p>
                     </div>
                   )}
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-center">
-                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 text-center">
+                    <p className="text-2xl font-bold text-red-600 dark:text-red-400">
                       {deleteResult.totalRequested}
                     </p>
-                    <p className="text-xs text-blue-700 dark:text-blue-300 font-medium mt-1">
+                    <p className="text-xs text-red-700 dark:text-red-300 font-medium mt-1">
                       Diminta
                     </p>
                   </div>
@@ -998,7 +998,7 @@ export default function Users({ onBack }) {
               <div className="mt-5 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <button
                   onClick={() => setShowDeleteResult(false)}
-                  className="w-full px-4 py-2.5 font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+                  className="w-full px-4 py-2.5 font-semibold text-white bg-gradient-to-r from-red-500/80 to-orange-500/80 backdrop-blur-md hover:from-red-600 hover:to-orange-600 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 border border-red-300/50"
                 >
                   Tutup
                 </button>

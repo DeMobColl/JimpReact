@@ -7,9 +7,9 @@ export default function LoadingSpinner({
   if (!loading) return null;
 
   const sizeClasses = {
-    sm: 'h-8 w-8 border-blue-400',
-    md: 'h-12 w-12 border-blue-500',
-    lg: 'h-16 w-16 border-blue-600'
+    sm: 'h-8 w-8 border-red-400',
+    md: 'h-12 w-12 border-red-500',
+    lg: 'h-16 w-16 border-red-600'
   };
 
   const textSizeClasses = {
@@ -19,7 +19,7 @@ export default function LoadingSpinner({
   };
 
   const containerClass = fullscreen
-    ? 'fixed inset-0 bg-white dark:bg-gray-900 bg-opacity-90 dark:bg-opacity-90 z-50 backdrop-blur-sm flex items-center justify-center'
+    ? 'fixed inset-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm z-[55] flex items-center justify-center'
     : 'w-full py-12 flex items-center justify-center';
 
   return (

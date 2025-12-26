@@ -335,7 +335,7 @@ export default function Customers({ onBack }) {
 
   if (loading) {
     return (
-      <div className="h-full flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/50 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 transition-colors duration-300">
+      <div className="h-full flex flex-col bg-gradient-to-br from-red-50 via-white/40 to-red-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 transition-colors duration-300">
         <div className="flex-1 overflow-auto p-3 md:p-4">
           <div className="max-w-4xl mx-auto">
             <LoadingSpinner text="Memuat data customer..." />
@@ -346,7 +346,7 @@ export default function Customers({ onBack }) {
   }
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/40 to-indigo-50/50 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 transition-colors duration-300">
+    <div className="h-full flex flex-col bg-gradient-to-br from-red-50 via-white/40 to-red-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 transition-colors duration-300">
       <div className="flex-1 overflow-auto p-3 md:p-4">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-xl shadow-slate-300/50 dark:shadow-none border border-slate-200/60 dark:border-gray-700/60 p-4 md:p-5">
@@ -367,7 +367,7 @@ export default function Customers({ onBack }) {
                     </button>
                   )}
                   <div>
-                    <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 text-transparent bg-clip-text mb-1">
+                    <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-red-600 to-orange-600 dark:from-red-400 dark:to-orange-400 text-transparent bg-clip-text mb-1">
                       📦 Manajemen Customer
                     </h1>
                     <p className="text-xs text-slate-600 dark:text-slate-400">
@@ -423,7 +423,7 @@ export default function Customers({ onBack }) {
                   </button>
                   <button
                     onClick={handleCreate}
-                    className="px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1"
+                    className="px-3 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-red-500/80 to-orange-500/80 backdrop-blur-md hover:from-red-600 hover:to-orange-600 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1 border border-red-300/50"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -450,7 +450,7 @@ export default function Customers({ onBack }) {
               placeholder="Cari nama customer..."
               value={searchName}
               onChange={(e) => setSearchName(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />
             <svg
               className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
@@ -467,7 +467,7 @@ export default function Customers({ onBack }) {
               placeholder="Cari blok..."
               value={searchBlok}
               onChange={(e) => setSearchBlok(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />
             <svg
               className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
@@ -527,7 +527,7 @@ export default function Customers({ onBack }) {
           </p>
           <button
             onClick={handleCreate}
-            className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors"
+            className="px-6 py-3 bg-gradient-to-r from-red-500/80 to-orange-500/80 backdrop-blur-md hover:from-red-600 hover:to-orange-600 text-white font-semibold rounded-lg transition-colors border border-red-300/50"
           >
             Tambah Customer Pertama
           </button>
@@ -592,9 +592,9 @@ export default function Customers({ onBack }) {
                         Rp {(customer.totalSetoran || 0).toLocaleString('id-ID')}
                       </div>
                     </div>
-                    <div className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg">
-                      <div className="text-xs text-blue-600 dark:text-blue-400">Terakhir Pencatatan</div>
-                      <div className="text-xs font-semibold text-blue-700 dark:text-blue-300">
+                    <div className="bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">
+                      <div className="text-xs text-red-600 dark:text-red-400">Terakhir Pencatatan</div>
+                      <div className="text-xs font-semibold text-red-700 dark:text-red-300">
                         {customer.lastTransaction
                           ? new Date(customer.lastTransaction).toLocaleDateString('id-ID', {
                               day: 'numeric',
@@ -623,7 +623,7 @@ export default function Customers({ onBack }) {
                     </button>
                     <button
                       onClick={() => handleEdit(customer)}
-                      className="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-1"
+                      className="px-3 py-2 bg-gradient-to-r from-red-500/80 to-orange-500/80 backdrop-blur-md hover:from-red-600 hover:to-orange-600 text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-1 border border-red-300/50"
                       title="Edit Customer"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -711,7 +711,7 @@ export default function Customers({ onBack }) {
                   value={formData.blok}
                   onChange={(e) => setFormData({ ...formData, blok: e.target.value })}
                   placeholder="Contoh: A-12, B-05, dst"
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   required
                 />
               </div>
@@ -726,13 +726,13 @@ export default function Customers({ onBack }) {
                   value={formData.nama}
                   onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
                   placeholder="Nama customer"
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   required
                 />
               </div>
 
               {/* Info Text */}
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg text-sm text-blue-700 dark:text-blue-300">
+              <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg text-sm text-red-700 dark:text-red-300">
                 💡 QR Code akan otomatis dibuat setelah customer ditambahkan
               </div>
 
@@ -748,7 +748,7 @@ export default function Customers({ onBack }) {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-red-500/80 to-orange-500/80 backdrop-blur-md hover:from-red-600 hover:to-orange-600 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-red-300/50"
                 >
                   {submitting ? 'Menyimpan...' : formMode === 'create' ? 'Tambah' : 'Update'}
                 </button>
@@ -813,7 +813,7 @@ export default function Customers({ onBack }) {
             
             {isDeleting && (
               <div className="flex flex-col items-center justify-center mb-6">
-                <svg className="w-12 h-12 text-blue-500 animate-spin mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-12 h-12 text-red-500 animate-spin mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Menghapus customer...</p>
@@ -886,9 +886,9 @@ export default function Customers({ onBack }) {
                 </div>
               )}
 
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
-                <div className="text-sm text-blue-600 dark:text-blue-400">Total Diminta</div>
-                <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+              <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-800">
+                <div className="text-sm text-red-600 dark:text-red-400">Total Diminta</div>
+                <div className="text-2xl font-bold text-red-700 dark:text-red-300">
                   {deleteResult.totalRequested}
                 </div>
               </div>
@@ -896,7 +896,7 @@ export default function Customers({ onBack }) {
 
             <button
               onClick={() => setShowDeleteResult(false)}
-              className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors"
+              className="w-full px-4 py-2 bg-gradient-to-r from-red-500/80 to-orange-500/80 backdrop-blur-md hover:from-red-600 hover:to-orange-600 text-white font-semibold rounded-lg transition-colors border border-red-300/50"
             >
               Tutup
             </button>

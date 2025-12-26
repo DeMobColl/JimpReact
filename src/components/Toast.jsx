@@ -17,7 +17,7 @@ export default function Toast({
     success: 'bg-green-500/90 text-white backdrop-blur-sm',
     error: 'bg-red-500/90 text-white backdrop-blur-sm',
     warning: 'bg-yellow-500/90 text-white backdrop-blur-sm',
-    info: 'bg-blue-500/90 text-white backdrop-blur-sm'
+    info: 'bg-red-500/90 text-white backdrop-blur-sm'
   };
 
   useEffect(() => {
@@ -60,8 +60,8 @@ export default function Toast({
 
   return (
     <div
-      className={`fixed top-4 right-4 z-50 max-w-sm w-full shadow-lg rounded-lg overflow-hidden transform transition-all duration-300 ease-in-out ${
-        visible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+      className={`fixed top-4 left-4 right-4 md:left-auto md:right-4 z-[65] max-w-sm w-full md:w-80 shadow-lg rounded-lg overflow-hidden transform transition-all duration-300 ease-in-out ${
+        visible ? 'translate-x-0 opacity-100' : 'translate-x-full md:translate-x-96 opacity-0'
       } ${typeClasses[type] || typeClasses.info}`}
       role="alert"
     >

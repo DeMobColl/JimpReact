@@ -390,21 +390,21 @@ export default function QRCard({ customer, onClose }) {
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-[60] p-4"
       onClick={onClose}
     >
       <div 
-        className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full max-h-[95vh] flex flex-col"
+        className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-2xl rounded-xl shadow-2xl max-w-md w-full max-h-[95vh] flex flex-col border border-white/30 dark:border-gray-700/30"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header - Fixed */}
-        <div className="flex-shrink-0 flex justify-between items-center p-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white">
+        <div className="flex-shrink-0 flex justify-between items-center p-6 pb-4 border-b border-red-200/50 dark:border-red-900/30 sticky top-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl">
+          <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
             📱 QR Code Customer
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 flex-shrink-0"
+            className="text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 flex-shrink-0 transition-colors"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
