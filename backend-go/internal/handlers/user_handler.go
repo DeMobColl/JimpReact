@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"jimpitan/backend/internal/services"
 	"net/http"
-	"strconv"
 )
 
 type UserHandler struct {
