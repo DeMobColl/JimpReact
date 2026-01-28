@@ -470,8 +470,21 @@ export async function getTransactionHistory(token, filters = {}) {
     });
 
     // Backend returns { status, message, data: [...] } - array of transactions directly
-    const transactionsData = response.data || response;
-    const transactions = Array.isArray(transactionsData) ? transactionsData : [];
+    console.log("[getTransactionHistory] Response:", response);
+    
+    let transactions = [];
+    
+    if (response.data) {
+      if (Array.isArray(response.data)) {
+        transactions = response.data;
+      } else if (response.data.transactions && Array.isArray(response.data.transactions)) {
+        transactions = response.data.transactions;
+      }
+    } else if (Array.isArray(response)) {
+      transactions = response;
+    }
+    
+    console.log("[getTransactionHistory] Parsed transactions:", transactions);
     
     return {
       transactions,
@@ -506,8 +519,21 @@ export async function getMyTransactionHistory(token, filters = {}) {
         token,
       });
       
-      const transactionsData = response.data || response;
-      const transactions = Array.isArray(transactionsData) ? transactionsData : [];
+      console.log("[getMyTransactionHistory] Response:", response);
+      
+      let transactions = [];
+      
+      if (response.data) {
+        if (Array.isArray(response.data)) {
+          transactions = response.data;
+        } else if (response.data.transactions && Array.isArray(response.data.transactions)) {
+          transactions = response.data.transactions;
+        }
+      } else if (Array.isArray(response)) {
+        transactions = response;
+      }
+      
+      console.log("[getMyTransactionHistory] Parsed transactions:", transactions);
       
       return {
         transactions,
