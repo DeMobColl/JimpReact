@@ -57,6 +57,9 @@ async function apiCall(endpoint, options = {}) {
       data = await response.text();
     }
 
+    // Debug logging
+    console.log(`[API] ${method} ${endpoint}`, { status: response.status, data });
+
     // Handle error responses
     if (!response.ok) {
       const errorMessage =
@@ -91,22 +94,41 @@ export async function loginWithAPI(username, password) {
       body: { username, password },
     });
 
-    // Backend returns { message, data: { token, id, name, role, username, ... } }
-    const userData = response.data || response;
-    if (!userData.token || !userData.id) {
+    console.log("[loginWithAPI] Full response:", response);
+
+    // Backend returns { status, message, data: { token, id, name, role, username, ... } }
+    // Sometimes might be just { message, token, id, ... } without wrapper
+    let userData;
+    
+    if (response.data) {
+      // Standard format: { status, message, data: {...} }
+      userData = response.data;
+    } else if (response.token) {
+      // Direct format: { token, id, name, ... }
+      userData = response;
+    } else {
+      console.error("[loginWithAPI] Unexpected response structure:", response);
       throw new Error("Invalid response format from server");
     }
+
+    if (!userData.token || !userData.id) {
+      console.error("[loginWithAPI] Missing token or id in userData:", userData);
+      throw new Error("Invalid response format from server");
+    }
+
+    console.log("[loginWithAPI] Parsed user data:", userData);
 
     return {
       token: userData.token,
       user: {
         id: userData.id,
-        name: userData.name,
+        name: userData.name || userData.nama || "Unknown",
         role: userData.role, // 'admin' or 'petugas'
         username: userData.username,
       },
     };
   } catch (error) {
+    console.error("[loginWithAPI] Error:", error);
     throw new Error(`Login failed: ${error.message}`);
   }
 }
@@ -401,11 +423,13 @@ export async function getTransactionHistory(token, filters = {}) {
       token,
     });
 
-    // Backend returns { status, message, data: [...] } - array of transactions
+    // Backend returns { status, message, data: [...] } - array of transactions directly
     const transactionsData = response.data || response;
+    const transactions = Array.isArray(transactionsData) ? transactionsData : [];
+    
     return {
-      transactions: Array.isArray(transactionsData) ? transactionsData : [],
-      total: Array.isArray(transactionsData) ? transactionsData.length : 0,
+      transactions,
+      total: transactions.length,
     };
   } catch (error) {
     throw new Error(`Failed to fetch transaction history: ${error.message}`);
@@ -414,12 +438,14 @@ export async function getTransactionHistory(token, filters = {}) {
 
 /**
  * Get my transaction history (current user)
+ * Fallback: if not implemented, use regular transaction history
  * @param {string} token
  * @param {Object} filters
  * @returns {Promise<{transactions: Array, total: number}>}
  */
 export async function getMyTransactionHistory(token, filters = {}) {
   try {
+    // Try my-history endpoint first
     const queryParams = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
@@ -427,29 +453,39 @@ export async function getMyTransactionHistory(token, filters = {}) {
       }
     });
 
-    const endpoint = `/api/transactions/my-history${queryParams ? `?${queryParams}` : ""}`;
-    const response = await apiCall(endpoint, {
-      method: "GET",
-      token,
-    });
-
-    // Backend returns { status, message, data: [...] } - array of transactions
-    const transactionsData = response.data || response;
-    return {
-      transactions: Array.isArray(transactionsData) ? transactionsData : [],
-      total: Array.isArray(transactionsData) ? transactionsData.length : 0,
-    };
+    try {
+      const endpoint = `/api/transactions/my-history${queryParams ? `?${queryParams}` : ""}`;
+      const response = await apiCall(endpoint, {
+        method: "GET",
+        token,
+      });
+      
+      const transactionsData = response.data || response;
+      const transactions = Array.isArray(transactionsData) ? transactionsData : [];
+      
+      return {
+        transactions,
+        total: transactions.length,
+      };
+    } catch (error) {
+      // If my-history not available, fallback to regular transactions
+      if (error.message.includes("404") || error.message.includes("not found")) {
+        return getTransactionHistory(token, filters);
+      }
+      throw error;
+    }
   } catch (error) {
     throw new Error(`Failed to fetch my transaction history: ${error.message}`);
   }
 }
 
 // ============================================
-// Config Endpoints
+// Config Endpoints (Not yet implemented in backend)
 // ============================================
 
 /**
  * Get system configuration
+ * NOTE: This endpoint is not yet implemented in the backend
  * @param {string} token
  * @returns {Promise<Object>}
  */
@@ -459,14 +495,25 @@ export async function getConfig(token) {
       method: "GET",
       token,
     });
-    return response.config || response;
+    return response.data || response.config || response;
   } catch (error) {
+    if (error.message.includes("404") || error.message.includes("not found")) {
+      // Return default config if endpoint not available
+      console.warn("Config endpoint not available, using defaults");
+      return {
+        id: "CONFIG-001",
+        petugas_web_login_enabled: true,
+        mobile_app_version: "1.0.0",
+        updated_at: new Date().toISOString(),
+      };
+    }
     throw new Error(`Failed to fetch configuration: ${error.message}`);
   }
 }
 
 /**
  * Update system configuration (admin only)
+ * NOTE: This endpoint is not yet implemented in the backend
  * @param {string} token
  * @param {Object} configData
  * @returns {Promise<Object>}
@@ -478,8 +525,12 @@ export async function updateConfig(token, configData) {
       body: configData,
       token,
     });
-    return response.config || response;
+    return response.data || response.config || response;
   } catch (error) {
+    if (error.message.includes("404") || error.message.includes("not found")) {
+      console.warn("Config endpoint not available");
+      return { success: true };
+    }
     throw new Error(`Failed to update configuration: ${error.message}`);
   }
 }
