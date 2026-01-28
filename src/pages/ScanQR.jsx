@@ -10,6 +10,18 @@ export default function ScanQR({ onBack, onNavigate }) {
   const [message, setMessage] = useState('');
   const html5QrCodeRef = useRef(null);
   const isScanningRef = useRef(false); // Use ref to avoid stale closure
+  
+  // Detect browser type
+  const [browserInfo] = useState(() => {
+    const ua = navigator.userAgent;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+    const isChrome = /Chrome/.test(ua) && !/Chromium/.test(ua);
+    const isFirefox = /Firefox/.test(ua);
+    const isSafari = /Safari/.test(ua) && !/Chrome/.test(ua);
+    const isEdge = /Edg/.test(ua);
+    
+    return { isMobile, isChrome, isFirefox, isSafari, isEdge };
+  });
 
   const getScannerHeight = () => {
     if (window.innerWidth < 640) return '180px';
@@ -24,7 +36,7 @@ export default function ScanQR({ onBack, onNavigate }) {
       setScannerHeight(getScannerHeight());
     };
     window.addEventListener('resize', handleResize);
-    
+
     // Don't auto-start scan - let user click the button to trigger permission prompt
     // This ensures the permission prompt is more reliable
     // (Auto-start can sometimes skip the permission prompt if permissions are cached/denied)
@@ -34,7 +46,7 @@ export default function ScanQR({ onBack, onNavigate }) {
       // Clean up scanner on unmount
       if (html5QrCodeRef.current) {
         try {
-          html5QrCodeRef.current.stop().catch(() => {});
+          html5QrCodeRef.current.stop().catch(() => { });
           html5QrCodeRef.current = null;
         } catch (e) {
           // Cleanup error ignored
@@ -50,25 +62,72 @@ export default function ScanQR({ onBack, onNavigate }) {
     setMessage('Meminta izin akses kamera...');
 
     try {
-      // Explicitly request camera permission
+      // Explicitly request camera permission with detailed error handling
+      let permissionGranted = false;
+      let permissionError = null;
+
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
+        // Try with environment camera first (rear camera on mobile)
+        const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'environment' },
-          audio: false 
+          audio: false
         });
         // Stop the stream we just got for testing
         stream.getTracks().forEach(track => track.stop());
-      } catch (permissionError) {
-        setError('Izin kamera ditolak. Silakan buka pengaturan browser dan berikan izin akses kamera.');
+        permissionGranted = true;
+        console.log('[ScanQR] Camera permission granted (environment)');
+      } catch (err) {
+        console.error('[ScanQR] Environment camera error:', err.name, err.message);
+        permissionError = err;
+
+        // Fallback: try with any camera
+        try {
+          console.log('[ScanQR] Trying fallback camera request...');
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: 'environment' } },
+            audio: false
+          });
+          stream.getTracks().forEach(track => track.stop());
+          permissionGranted = true;
+          console.log('[ScanQR] Camera permission granted (fallback)');
+        } catch (fallbackErr) {
+          console.error('[ScanQR] Fallback camera error:', fallbackErr.name, fallbackErr.message);
+          permissionError = fallbackErr;
+        }
+      }
+
+      if (!permissionGranted) {
+        // Check the specific error type
+        const errorName = permissionError?.name || 'Unknown';
+        let userMessage = '';
+
+        if (errorName === 'NotAllowedError') {
+          userMessage = 'Izin kamera ditolak. Silakan buka pengaturan browser (Settings > Privacy > Camera) dan izinkan localhost:3000 untuk akses kamera.';
+        } else if (errorName === 'NotFoundError' || errorName === 'DevicesNotFoundError') {
+          userMessage = 'Tidak ada perangkat kamera yang ditemukan. Pastikan perangkat Anda memiliki kamera dan terhubung dengan baik.';
+        } else if (errorName === 'NotReadableError') {
+          userMessage = 'Kamera sedang digunakan oleh aplikasi lain atau tidak dapat diakses. Tutup aplikasi lain yang menggunakan kamera.';
+        } else if (errorName === 'SecurityError') {
+          userMessage = 'Akses kamera ditolak karena alasan keamanan. Pastikan Anda mengakses aplikasi melalui HTTPS (bukan HTTP) atau localhost.';
+        } else {
+          userMessage = `Gagal mengakses kamera. Error: ${errorName} - ${permissionError?.message || 'Tidak diketahui'}`;
+        }
+
+        setError(userMessage);
         setMessage('');
+        console.error('[ScanQR] Permission error details:', { name: errorName, message: permissionError?.message });
         return;
       }
 
+      // Permission granted, now initialize the scanner
       const scannerId = 'qr-reader';
-      
+
       html5QrCodeRef.current = new Html5Qrcode(scannerId);
 
       const qrBoxSize = window.innerWidth < 640 ? 160 : window.innerWidth < 1024 ? 180 : 200;
+      
+      console.log('[ScanQR] Starting scanner with qrBoxSize:', qrBoxSize);
+      
       await html5QrCodeRef.current.start(
         { facingMode: 'environment' },
         {
@@ -83,9 +142,10 @@ export default function ScanQR({ onBack, onNavigate }) {
       setIsScanning(true);
       isScanningRef.current = true;
       setMessage('Scanning...');
+      console.log('[ScanQR] Scanner started successfully');
     } catch (err) {
-      console.error('Scan error:', err);
-      setError('Gagal mengaktifkan kamera. Pastikan izin kamera sudah diberikan. Error: ' + err.message);
+      console.error('[ScanQR] Unexpected error:', err);
+      setError('Gagal mengaktifkan kamera. Error: ' + (err?.message || 'Unknown error'));
       setIsScanning(false);
       isScanningRef.current = false;
     }
@@ -112,18 +172,18 @@ export default function ScanQR({ onBack, onNavigate }) {
     if (!isScanningRef.current) {
       return;
     }
-    
+
     // Scan hash customer (10 karakter hexadecimal)
     const cleanText = decodedText.trim();
-      
+
     if (cleanText.length === 10 && /^[A-F0-9]+$/i.test(cleanText)) {
-      
+
       // Stop immediately to prevent multiple scans
       setIsScanning(false);
       isScanningRef.current = false;
-      
+
       const hashUpper = cleanText.toUpperCase();
-      
+
       if (html5QrCodeRef.current) {
         html5QrCodeRef.current.stop()
           .then(() => {
@@ -163,7 +223,7 @@ export default function ScanQR({ onBack, onNavigate }) {
   return (
     <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-50 via-red-50/40 to-white/50 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 px-4 py-2 transition-colors duration-300">
       <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-3xl shadow-2xl shadow-slate-300/50 dark:shadow-none border border-slate-200/60 dark:border-gray-700/60 p-3 md:p-4 w-full max-w-2xl text-center transition-all duration-300">
-        
+
         {/* Back Button */}
         {onBack && (
           <div className="flex justify-start mb-2">
@@ -178,7 +238,7 @@ export default function ScanQR({ onBack, onNavigate }) {
             </button>
           </div>
         )}
-        
+
         {/* Header Icon */}
         <div className="mb-2">
           <div className="inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-red-500 to-red-600 dark:from-red-600 dark:to-red-700 rounded-2xl shadow-xl shadow-red-200/50 dark:shadow-red-900/30">
@@ -217,9 +277,47 @@ export default function ScanQR({ onBack, onNavigate }) {
 
         {/* Status Messages */}
         {error && (
-          <div className="mt-2 text-xs text-red-600 dark:text-red-400 font-medium bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-700 rounded-xl p-2 animate-fade-in">
-            {error}
-          </div>
+          <>
+            <div className="mt-2 text-xs text-red-600 dark:text-red-400 font-medium bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-700 rounded-xl p-2 animate-fade-in">
+              {error}
+            </div>
+            {/* Help section for permission errors */}
+            {error.includes('ditolak') && (
+              <div className="mt-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl p-3">
+                <p className="text-xs font-semibold text-blue-800 dark:text-blue-300 mb-2">💡 Cara mengizinkan akses kamera:</p>
+                {browserInfo.isChrome && (
+                  <ol className="text-xs text-blue-700 dark:text-blue-400 space-y-1 ml-4 list-decimal">
+                    <li>Klik ikon <strong>🔒 Kunci/Info</strong> di URL bar (sebelah kiri alamat web)</li>
+                    <li>Klik <strong>"Camera"</strong> yang sedang "Blocked"</li>
+                    <li>Ubah menjadi <strong>"Allow"</strong></li>
+                    <li>Refresh halaman dan coba lagi</li>
+                  </ol>
+                )}
+                {browserInfo.isFirefox && (
+                  <ol className="text-xs text-blue-700 dark:text-blue-400 space-y-1 ml-4 list-decimal">
+                    <li>Klik ikon <strong>⚠️ Warning</strong> atau <strong>ℹ️ Info</strong> di URL bar</li>
+                    <li>Temukan "Camera" dalam daftar permission</li>
+                    <li>Ubah menjadi <strong>"Allow"</strong></li>
+                    <li>Refresh halaman dan coba lagi</li>
+                  </ol>
+                )}
+                {browserInfo.isSafari && (
+                  <ol className="text-xs text-blue-700 dark:text-blue-400 space-y-1 ml-4 list-decimal">
+                    <li>Buka <strong>Safari menu → Settings → Privacy</strong></li>
+                    <li>Pastikan Camera diizinkan untuk localhost</li>
+                    <li>Refresh halaman dan coba lagi</li>
+                  </ol>
+                )}
+                {!browserInfo.isChrome && !browserInfo.isFirefox && !browserInfo.isSafari && (
+                  <ol className="text-xs text-blue-700 dark:text-blue-400 space-y-1 ml-4 list-decimal">
+                    <li>Cari pengaturan Camera permission di browser Anda</li>
+                    <li>Ubah permission untuk localhost menjadi "Allow"</li>
+                    <li>Refresh halaman dan coba lagi</li>
+                  </ol>
+                )}
+              </div>
+            )}
+          </>
         )}
 
         {message && (
