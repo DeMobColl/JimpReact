@@ -10,12 +10,14 @@ export default function QRCard({ customer, onClose }) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (customer && customer.qrHash) {
+    if (customer && (customer.qrHash || customer.qr_hash)) {
+      const qrHash = customer.qrHash || customer.qr_hash;
+      
       // Generate Simple QR Code (hash only)
       if (canvasRefSimple.current) {
         QRCode.toCanvas(
           canvasRefSimple.current,
-          customer.qrHash,
+          qrHash,
           {
             width: 300,
             margin: 2,
@@ -30,7 +32,7 @@ export default function QRCard({ customer, onClose }) {
         );
 
         QRCode.toDataURL(
-          customer.qrHash,
+          qrHash,
           {
             width: 600,
             margin: 2,
@@ -48,7 +50,7 @@ export default function QRCard({ customer, onClose }) {
       }
 
       // Generate Submit URL QR Code
-      const submitUrl = `${window.location.origin}/submit?qr=${customer.qrHash}`;
+      const submitUrl = `${window.location.origin}/submit?qr=${qrHash}`;
       if (canvasRefSubmit.current) {
         QRCode.toCanvas(
           canvasRefSubmit.current,
@@ -87,9 +89,10 @@ export default function QRCard({ customer, onClose }) {
   }, [customer, selectedType]);
 
   const handleCopy = async () => {
+    const qrHash = customer.qrHash || customer.qr_hash;
     const textToCopy = selectedType === 'simple' 
-      ? customer.qrHash 
-      : `${window.location.origin}/submit?qr=${customer.qrHash}`;
+      ? qrHash
+      : `${window.location.origin}/submit?qr=${qrHash}`;
     
     try {
       await navigator.clipboard.writeText(textToCopy);
@@ -475,8 +478,8 @@ export default function QRCard({ customer, onClose }) {
             <div className="flex items-center justify-center gap-2">
               <span className="flex-1 text-left">
                 {selectedType === 'simple' 
-                  ? customer.qrHash 
-                  : `${window.location.origin}/submit?qr=${customer.qrHash}`}
+                  ? (customer.qrHash || customer.qr_hash)
+                  : `${window.location.origin}/submit?qr=${customer.qrHash || customer.qr_hash}`}
               </span>
               {copied ? (
                 <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
