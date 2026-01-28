@@ -2,9 +2,14 @@
 
 Backend Go + MySQL menggantikan Google Apps Script + Sheets.
 
+**Lokasi**: `../jimpitan-backend` (folder terpisah dari JimpReact)
+
 ## ⚡ Quick Start
 
 ```bash
+# Navigate to backend folder
+cd ../jimpitan-backend
+
 # Setup database
 mysql -u root -p
 CREATE DATABASE jimpitan CHARACTER SET utf8mb4;
@@ -13,7 +18,6 @@ GRANT ALL PRIVILEGES ON jimpitan.* TO 'jimpitan'@'localhost';
 EXIT;
 
 # Run migrations
-cd backend-go
 mysql -u jimpitan -p jimpitan < migrations/001_initial_schema.sql
 mysql -u jimpitan -p jimpitan < migrations/002_add_indexes.sql
 

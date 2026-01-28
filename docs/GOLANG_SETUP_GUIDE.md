@@ -47,7 +47,7 @@ EXIT;
 ### 1.3 Import Schema
 
 ```bash
-cd backend-go
+cd ../jimpitan-backend
 mysql -u jimpitan -p jimpitan < migrations/001_initial_schema.sql
 mysql -u jimpitan -p jimpitan < migrations/002_add_indexes.sql
 # Masukkan password: jimpitan123
@@ -71,7 +71,7 @@ EXIT;
 ### 2.1 Navigate to Backend
 
 ```bash
-cd backend-go
+cd ../jimpitan-backend
 ```
 
 ### 2.2 Setup Environment
@@ -256,8 +256,8 @@ curl -X POST http://localhost:8080/api/transactions \
 ## 📁 Project Structure Setelah Setup
 
 ```
-JimpReact/
-├── backend-go/                 ← Backend Go (new)
+nodejs/
+├── jimpitan-backend/           ← Backend Go (separate folder)
 │   ├── cmd/server/
 │   │   └── main.go
 │   ├── internal/
@@ -267,7 +267,8 @@ JimpReact/
 │   ├── Makefile
 │   └── README.md
 │
-├── src/                        ← Frontend React (modified)
+└── JimpReact/
+    ├── src/                    ← Frontend React (modified)
 │   ├── services/
 │   │   ├── api.js             ← NEW (menggantikan sheets.js)
 │   │   └── requestManager.js  ← Updated
@@ -292,13 +293,14 @@ JimpReact/
 
 **Terminal 1 - Backend:**
 ```bash
-cd backend-go
+cd ../jimpitan-backend
 make dev
 # atau: go run cmd/server/main.go
 ```
 
 **Terminal 2 - Frontend:**
 ```bash
+cd ../JimpReact
 npm run dev
 ```
 
@@ -413,7 +415,7 @@ CORS_ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
 
 ```bash
 # Build binary
-cd backend-go
+cd ../jimpitan-backend
 make build
 
 # Deploy binary to server
@@ -441,6 +443,7 @@ scp -r dist/ user@server:/var/www/jimpitan/
 mysqldump -u jimpitan -p jimpitan > backup.sql
 
 # Jalankan migrations di production
+cd ../jimpitan-backend
 mysql -u jimpitan -p jimpitan < migrations/001_initial_schema.sql
 ```
 
