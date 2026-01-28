@@ -25,14 +25,12 @@ export default function ScanQR({ onBack, onNavigate }) {
     };
     window.addEventListener('resize', handleResize);
     
-    // Auto start scan on mount with slight delay to ensure DOM is ready
-    const timer = setTimeout(() => {
-      startScan();
-    }, 100);
+    // Don't auto-start scan - let user click the button to trigger permission prompt
+    // This ensures the permission prompt is more reliable
+    // (Auto-start can sometimes skip the permission prompt if permissions are cached/denied)
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      clearTimeout(timer);
       // Clean up scanner on unmount
       if (html5QrCodeRef.current) {
         try {
@@ -49,9 +47,23 @@ export default function ScanQR({ onBack, onNavigate }) {
     if (isScanning || html5QrCodeRef.current) return;
 
     setError('');
-    setMessage('');
+    setMessage('Meminta izin akses kamera...');
 
     try {
+      // Explicitly request camera permission
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: 'environment' },
+          audio: false 
+        });
+        // Stop the stream we just got for testing
+        stream.getTracks().forEach(track => track.stop());
+      } catch (permissionError) {
+        setError('Izin kamera ditolak. Silakan buka pengaturan browser dan berikan izin akses kamera.');
+        setMessage('');
+        return;
+      }
+
       const scannerId = 'qr-reader';
       
       html5QrCodeRef.current = new Html5Qrcode(scannerId);
@@ -72,7 +84,8 @@ export default function ScanQR({ onBack, onNavigate }) {
       isScanningRef.current = true;
       setMessage('Scanning...');
     } catch (err) {
-      setError('Gagal mengaktifkan kamera. Pastikan izin kamera sudah diberikan.');
+      console.error('Scan error:', err);
+      setError('Gagal mengaktifkan kamera. Pastikan izin kamera sudah diberikan. Error: ' + err.message);
       setIsScanning(false);
       isScanningRef.current = false;
     }

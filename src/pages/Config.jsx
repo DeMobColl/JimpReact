@@ -270,8 +270,8 @@ export default function Config({ onBack }) {
               onClick={() => handleToggleConfig('allowPetugasWebLogin')}
               disabled={saving}
               className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${config.allowPetugasWebLogin
-                  ? 'bg-green-500'
-                  : 'bg-gray-300 dark:bg-gray-600'
+                ? 'bg-green-500'
+                : 'bg-gray-300 dark:bg-gray-600'
                 }`}
             >
               <span
@@ -282,8 +282,8 @@ export default function Config({ onBack }) {
           </div>
 
           <div className={`p-4 rounded-lg border-2 ${config.allowPetugasWebLogin
-              ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700'
-              : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700'
+            ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700'
+            : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700'
             }`}>
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0">
@@ -299,14 +299,14 @@ export default function Config({ onBack }) {
               </div>
               <div className="flex-1">
                 <p className={`text-sm font-semibold ${config.allowPetugasWebLogin
-                    ? 'text-green-900 dark:text-green-300'
-                    : 'text-red-900 dark:text-red-300'
+                  ? 'text-green-900 dark:text-green-300'
+                  : 'text-red-900 dark:text-red-300'
                   }`}>
                   Status: {config.allowPetugasWebLogin ? 'Diizinkan ✅' : 'Diblokir 🚫'}
                 </p>
                 <p className={`text-xs mt-1 ${config.allowPetugasWebLogin
-                    ? 'text-green-700 dark:text-green-400'
-                    : 'text-red-700 dark:text-red-400'
+                  ? 'text-green-700 dark:text-green-400'
+                  : 'text-red-700 dark:text-red-400'
                   }`}>
                   {config.allowPetugasWebLogin
                     ? 'Petugas dapat login melalui aplikasi web'

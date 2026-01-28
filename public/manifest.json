@@ -55,5 +55,6 @@
     }
   ],
   "categories": ["finance", "business", "productivity"],
-  "screenshots": []
+  "screenshots": [],
+  "permissions": ["camera"]
 }
