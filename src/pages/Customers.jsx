@@ -568,7 +568,7 @@ export default function Customers({ onBack }) {
                             {/* QR Hash - Center */}
                             <div className="mb-3 text-center">
                               <div className="font-mono text-lg bg-gradient-to-r from-red-100 to-white dark:from-red-900/30 dark:to-gray-900/30 px-3 py-2 rounded-lg font-bold text-red-700 dark:text-red-300">
-                                {customer.qrHash || '-'}
+                                {customer.qr_hash || customer.qrHash || '-'}
                               </div>
                             </div>
 
@@ -577,18 +577,18 @@ export default function Customers({ onBack }) {
                               <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded-lg">
                                 <div className="text-xs text-green-600 dark:text-green-400">Total</div>
                                 <div className="text-sm font-bold text-green-700 dark:text-green-300">
-                                  Rp {(customer.totalSetoran || 0).toLocaleString('id-ID')}
+                                  Rp {(customer.total_setoran || 0).toLocaleString('id-ID')}
                                 </div>
                               </div>
                               <div className="bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">
                                 <div className="text-xs text-red-600 dark:text-red-400">Terakhir Pencatatan</div>
                                 <div className="text-xs font-semibold text-red-700 dark:text-red-300">
-                                  {customer.lastTransaction
-                                    ? new Date(customer.lastTransaction).toLocaleDateString('id-ID', {
+                                  {customer.last_transaction
+                                    ? new Date(customer.last_transaction).toLocaleDateString('id-ID', {
                                       day: 'numeric',
                                       month: 'short',
                                       year: 'numeric'
-                                    }) + ', ' + new Date(customer.lastTransaction).toLocaleTimeString('id-ID', {
+                                    }) + ', ' + new Date(customer.last_transaction).toLocaleTimeString('id-ID', {
                                       hour: '2-digit',
                                       minute: '2-digit'
                                     })
@@ -759,7 +759,7 @@ export default function Customers({ onBack }) {
         confirmText="Hapus"
         cancelText="Batal"
         onConfirm={handleDeleteConfirm}
-        onCancel={() => {
+        onClose={() => {
           setShowDeleteConfirm(false);
           setCustomerToDelete(null);
         }}

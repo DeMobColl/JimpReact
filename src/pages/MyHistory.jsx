@@ -198,9 +198,9 @@ export default function MyHistory({ onBack }) {
                 </div>
               ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                  {paged.map(t => (
+                  {paged.map((t, index) => (
                     <div
-                      key={t.txid}
+                      key={`${t.txid || 'unknown'}-${index}`}
                       className="p-4 rounded-lg border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-900 hover:shadow-md transition-shadow"
                     >
                       <div className="flex justify-between items-start mb-2">
@@ -287,13 +287,13 @@ export default function MyHistory({ onBack }) {
       </div>
 
       <ConfirmDialog
-        open={!!confirmData}
+        isOpen={!!confirmData}
         title="Konfirmasi Hapus"
         message="Yakin ingin menghapus transaksi ini?"
         confirmText="Hapus"
         cancelText="Batal"
         onConfirm={handleConfirm}
-        onCancel={() => setConfirmData(null)}
+        onClose={() => setConfirmData(null)}
       />
     </PageLayout>
   );

@@ -17,40 +17,15 @@ const Login = lazy(() => import('./pages/Login'));
 function AppContent() {
   const { currentUser, logout, isAdmin } = useAuth();
   const { isDark, toggleTheme } = useDarkMode();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
   const location = useLocation();
   const homeNavigateRef = useRef(null);
   const [currentView, setCurrentView] = useState('home');
 
-  // Close mobile menu when route changes
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [location]);
-
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
-
-  const openTutorial = () => {
-    closeMobileMenu();
-    setShowTutorial(true);
-  };
-
-  const handleLogout = () => {
-    closeMobileMenu();
-    logout();
-  };
-
   // Function to navigate within Home component
   const handleNavigation = (view) => {
     if (homeNavigateRef.current) {
       homeNavigateRef.current(view);
-      closeMobileMenu();
     } else {
       console.warn('Navigation not ready yet:', view);
     }
@@ -230,83 +205,128 @@ function AppContent() {
             )}
           </button>
 
-          {/* Hamburger Button */}
-          <button
-            onClick={toggleMobileMenu}
-            className="p-2 text-gray-600 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-300 focus:outline-none"
-            aria-label="Toggle menu"
-          >
-            {!isMobileMenuOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+          {/* Logout Button */}
+          {currentUser && (
+            <button
+              onClick={logout}
+              className="p-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white transition-all hover:shadow-md"
+              title="Logout"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
-            ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            )}
-          </button>
+            </button>
+          )}
         </div>
       </nav>
 
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <>
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 md:hidden"
-            onClick={closeMobileMenu}
-          />
-          
-          {/* Mobile Menu */}
-          <div className="fixed top-[57px] left-0 right-0 z-50 md:hidden bg-white dark:bg-gray-800 shadow-lg border-t border-gray-200 dark:border-gray-700 animate-slide-in max-h-[calc(100vh-57px)] overflow-y-auto">
-            <div className="px-4 py-3 space-y-2">
-            {currentUser && (
-              <>
-                <button onClick={() => { handleNavigation('home'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'home' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400'}`}>Home</button>
-                <button onClick={() => { handleNavigation('scanqr'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'scanqr' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400'}`}>Scan QR</button>
-                {isAdmin && <button onClick={() => { handleNavigation('history'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'history' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400'}`}>Riwayat</button>}
-                {!isAdmin && <button onClick={() => { handleNavigation('myhistory'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'myhistory' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400'}`}>Riwayat Saya</button>}
-                {isAdmin && <button onClick={() => { handleNavigation('users'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'users' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400'}`}>User</button>}
-                {isAdmin && <button onClick={() => { handleNavigation('customers'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'customers' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400'}`}>Customers</button>}
-                {isAdmin && <button onClick={() => { handleNavigation('config'); closeMobileMenu(); }} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all ${currentView === 'config' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-red-600 dark:hover:text-red-400'}`}>Konfigurasi</button>}
-                <button
-                  onClick={openTutorial}
-                  className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg hover:text-blue-500 dark:hover:text-blue-300 flex items-center gap-2"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
-                  </svg>
-                  Tutorial Penggunaan
-                </button>
-              </>
-            )}
+{/* Mobile Menu Overlay - REMOVED, replaced with bottom nav */}
 
-            <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-              {currentUser && (
-                <>
-                  <div className="px-3 py-2 text-xs uppercase tracking-wide text-gray-600 dark:text-gray-400">
-                    {currentUser.name}
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-3 py-2 text-sm bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 rounded-lg flex items-center gap-2 font-medium"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    <span>Logout</span>
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-          </div>
-        </>
+      {/* Bottom Navigation for Mobile - Only show when logged in */}
+      {currentUser && (
+      <nav className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-700 shadow-lg shadow-gray-300/50 dark:shadow-none">
+        <div className="flex items-center justify-around py-3 px-2">
+          {/* Home */}
+          <button
+            onClick={() => { handleNavigation('home'); }}
+            className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all ${
+              currentView === 'home'
+                ? 'text-red-600 dark:text-red-400'
+                : 'text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'
+            }`}
+            title="Home"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+            </svg>
+            <span className="text-xs font-medium">Home</span>
+          </button>
+
+          {/* History/Riwayat */}
+          {isAdmin && (
+            <button
+              onClick={() => { handleNavigation('history'); }}
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all ${
+                currentView === 'history'
+                  ? 'text-red-600 dark:text-red-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'
+              }`}
+              title="Riwayat"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-xs font-medium">Riwayat</span>
+            </button>
+          )}
+          {!isAdmin && (
+            <button
+              onClick={() => { handleNavigation('myhistory'); }}
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all ${
+                currentView === 'myhistory'
+                  ? 'text-red-600 dark:text-red-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'
+              }`}
+              title="Riwayat Saya"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-xs font-medium">Riwayat</span>
+            </button>
+          )}
+
+          {/* QR Scan - Center */}
+          <button
+            onClick={() => handleNavigation('scanqr')}
+            className="flex flex-col items-center gap-1 px-3 py-2 rounded-lg -mt-6 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+            title="Scan QR"
+          >
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2zM15 13h2v2h-2zM17 13h2v2h-2zM13 15h2v2h-2zM17 15h2v2h-2zM19 13h2v2h-2zM15 17h2v2h-2zM17 17h2v2h-2z"/>
+            </svg>
+            <span className="text-xs font-medium">Scan</span>
+          </button>
+
+          {/* Customers */}
+          <button
+            onClick={() => { handleNavigation('customers'); }}
+            className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all ${
+              currentView === 'customers'
+                ? 'text-red-600 dark:text-red-400'
+                : 'text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'
+            }`}
+            title="Data Customer"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+            </svg>
+            <span className="text-xs font-medium">Customer</span>
+          </button>
+
+          {/* Users (Admin Only) */}
+          {isAdmin && (
+            <button
+              onClick={() => { handleNavigation('users'); }}
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all ${
+                currentView === 'users'
+                  ? 'text-red-600 dark:text-red-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'
+              }`}
+              title="Manajemen User"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM9 6a3 3 0 11-6 0 3 3 0 016 0zM9 6a3 3 0 11-6 0 3 3 0 016 0zm12 6a9 9 0 11-18 0 9 9 0 0118 0zm-9-4a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              <span className="text-xs font-medium">User</span>
+            </button>
+          )}
+        </div>
+      </nav>
       )}
 
       {/* Main Content */}
-      <main className="flex-1 flex p-3 md:p-6 overflow-hidden">
+      <main className="flex-1 flex p-3 md:p-6 pb-16 md:pb-6 overflow-hidden">
         <div className="w-full h-full overflow-auto">
           <Suspense fallback={<LoadingSpinner fullscreen loading text="Memuat halaman..." />}>
             <Routes>

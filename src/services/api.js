@@ -57,9 +57,6 @@ async function apiCall(endpoint, options = {}) {
       data = await response.text();
     }
 
-    // Debug logging
-    console.log(`[API] ${method} ${endpoint}`, { status: response.status, data });
-
     // Handle error responses
     if (!response.ok) {
       const errorMessage =
@@ -94,8 +91,6 @@ export async function loginWithAPI(username, password) {
       body: { username, password },
     });
 
-    console.log("[loginWithAPI] Full response:", response);
-
     // Backend returns { status, message, data: { token, id, name, role, username, ... } }
     // Sometimes might be just { message, token, id, ... } without wrapper
     let userData;
@@ -115,8 +110,6 @@ export async function loginWithAPI(username, password) {
       console.error("[loginWithAPI] Missing token or id in userData:", userData);
       throw new Error("Invalid response format from server");
     }
-
-    console.log("[loginWithAPI] Parsed user data:", userData);
 
     return {
       token: userData.token,
@@ -196,7 +189,6 @@ export async function getUsers(token) {
       token,
     });
     // Backend returns { status, message, data: { users: [...] } }
-    console.log("[getUsers] Response:", response);
     
     if (!response) return [];
     
@@ -219,7 +211,6 @@ export async function getUsers(token) {
       usersArray = response;
     }
     
-    console.log("[getUsers] Parsed users:", usersArray);
     return usersArray;
   } catch (error) {
     throw new Error(`Failed to fetch users: ${error.message}`);
@@ -363,7 +354,6 @@ export async function getCustomers(token) {
       token,
     });
     // Backend returns { status, message, data: { customers: [...] } }
-    console.log("[getCustomers] Response:", response);
     
     if (!response) return [];
     
@@ -386,7 +376,6 @@ export async function getCustomers(token) {
       customersArray = response;
     }
     
-    console.log("[getCustomers] Parsed customers:", customersArray);
     return customersArray;
   } catch (error) {
     throw new Error(`Failed to fetch customers: ${error.message}`);
@@ -566,7 +555,6 @@ export async function getTransactionHistory(token, filters = {}) {
     });
 
     // Backend returns { status, message, data: [...] } - array of transactions directly
-    console.log("[getTransactionHistory] Response:", response);
     
     let transactions = [];
     
@@ -579,8 +567,6 @@ export async function getTransactionHistory(token, filters = {}) {
     } else if (Array.isArray(response)) {
       transactions = response;
     }
-    
-    console.log("[getTransactionHistory] Parsed transactions:", transactions);
     
     return {
       transactions,
@@ -614,8 +600,7 @@ export async function getMyTransactionHistory(token, filters = {}) {
         method: "GET",
         token,
       });
-      
-      console.log("[getMyTransactionHistory] Response:", response);
+
       
       let transactions = [];
       
@@ -628,8 +613,6 @@ export async function getMyTransactionHistory(token, filters = {}) {
       } else if (Array.isArray(response)) {
         transactions = response;
       }
-      
-      console.log("[getMyTransactionHistory] Parsed transactions:", transactions);
       
       return {
         transactions,
@@ -655,13 +638,32 @@ export async function getMyTransactionHistory(token, filters = {}) {
  */
 export async function deleteTransaction(token, transactionId) {
   try {
-    const response = await apiCall(`/api/transactions/${transactionId}`, {
+    const response = await apiCall(`/api/transactions?id=${transactionId}`, {
       method: "DELETE",
       token,
     });
     return response;
   } catch (error) {
     throw new Error(`Failed to delete transaction: ${error.message}`);
+  }
+}
+
+/**
+ * Bulk delete multiple transactions (admin only)
+ * @param {string} token
+ * @param {string[]} transactionIds
+ * @returns {Promise<Object>}
+ */
+export async function bulkDeleteTransactions(token, transactionIds) {
+  try {
+    const response = await apiCall('/api/transactions/bulk-delete', {
+      method: "POST",
+      token,
+      body: JSON.stringify({ ids: transactionIds }),
+    });
+    return response;
+  } catch (error) {
+    throw new Error(`Failed to bulk delete transactions: ${error.message}`);
   }
 }
 

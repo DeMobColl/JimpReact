@@ -75,21 +75,18 @@ export default function ScanQR({ onBack, onNavigate }) {
         // Stop the stream we just got for testing
         stream.getTracks().forEach(track => track.stop());
         permissionGranted = true;
-        console.log('[ScanQR] Camera permission granted (environment)');
       } catch (err) {
         console.error('[ScanQR] Environment camera error:', err.name, err.message);
         permissionError = err;
 
         // Fallback: try with any camera
         try {
-          console.log('[ScanQR] Trying fallback camera request...');
           const stream = await navigator.mediaDevices.getUserMedia({
             video: { facingMode: { ideal: 'environment' } },
             audio: false
           });
           stream.getTracks().forEach(track => track.stop());
           permissionGranted = true;
-          console.log('[ScanQR] Camera permission granted (fallback)');
         } catch (fallbackErr) {
           console.error('[ScanQR] Fallback camera error:', fallbackErr.name, fallbackErr.message);
           permissionError = fallbackErr;
@@ -126,8 +123,6 @@ export default function ScanQR({ onBack, onNavigate }) {
 
       const qrBoxSize = window.innerWidth < 640 ? 160 : window.innerWidth < 1024 ? 180 : 200;
 
-      console.log('[ScanQR] Starting scanner with qrBoxSize:', qrBoxSize);
-
       await html5QrCodeRef.current.start(
         { facingMode: 'environment' },
         {
@@ -142,7 +137,6 @@ export default function ScanQR({ onBack, onNavigate }) {
       setIsScanning(true);
       isScanningRef.current = true;
       setMessage('Scanning...');
-      console.log('[ScanQR] Scanner started successfully');
     } catch (err) {
       console.error('[ScanQR] Unexpected error:', err);
       setError('Gagal mengaktifkan kamera. Error: ' + (err?.message || 'Unknown error'));

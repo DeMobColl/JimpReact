@@ -41,11 +41,9 @@ setupInstallPrompt();
 setupNetworkListeners(
   () => {
     // Online callback
-    console.log('[App] Network: Online');
   },
   () => {
     // Offline callback
-    console.log('[App] Network: Offline');
   }
 );
 

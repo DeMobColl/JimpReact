@@ -17,7 +17,7 @@ function HomeView({ onNavigate, isAdmin, currentUser }) {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-b from-red-50 via-white to-red-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 px-3 py-4 pb-28 sm:pb-20 transition-colors duration-300">
+      <div className="bg-gradient-to-b from-red-50 via-white to-red-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-slate-900 px-3 py-4 pb-20 sm:pb-6 transition-colors duration-300">
         <div className="max-w-2xl mx-auto">
           {/* Bold Header Banner */}
           <div className="bg-gradient-to-r from-red-600 to-red-500 dark:from-red-700 dark:to-red-600 rounded-3xl shadow-2xl p-6 mb-4 border-2 border-red-400 dark:border-red-700">

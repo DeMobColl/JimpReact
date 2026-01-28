@@ -153,11 +153,7 @@ export const setupMemorySecurity = () => {
  * Prevent accidental console dumps of large objects
  */
 export const setupConsoleSecurity = () => {
-  if (isDev) {
-    // Log a security reminder in development
-    console.log('%c⚠️ Security Reminder', 'color: red; font-weight: bold; font-size: 16px;');
-    console.log('%cDo not paste sensitive data or tokens in console. This is a development environment.', 'color: orange; font-size: 14px;');
-  }
+  // Security setup (console security handled elsewhere)
 };
 
 export default {

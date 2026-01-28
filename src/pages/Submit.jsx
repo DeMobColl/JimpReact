@@ -55,8 +55,8 @@ export default function Submit({ onBack, qrHash: propsQrHash }) {
     }));
   }
 
-  // Check if there's a duplicate transaction (same nominal today)
-  async function checkDuplicateTransaction(customerId, nominal) {
+  // Check if customer already has transaction today
+  async function checkDuplicateTransaction(customerId) {
     try {
       const result = await getTransactionHistory(token);
       const transactions = result.transactions || [];
@@ -65,7 +65,7 @@ export default function Submit({ onBack, qrHash: propsQrHash }) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      // Find transactions for this customer today with same nominal
+      // Find any transaction for this customer today (regardless of nominal)
       const duplicates = transactions.filter(tx => {
         const txCustomerId = tx.customer_id || tx.id || '';
         const txDate = new Date(tx.timestamp || tx.waktu || '');
@@ -73,8 +73,7 @@ export default function Submit({ onBack, qrHash: propsQrHash }) {
 
         return (
           String(txCustomerId).trim() === String(customerId).trim() &&
-          txDate.getTime() === today.getTime() &&
-          Number(tx.nominal) === nominal
+          txDate.getTime() === today.getTime()
         );
       });
 
@@ -109,23 +108,17 @@ export default function Submit({ onBack, qrHash: propsQrHash }) {
     try {
       setSubmitting(true);
 
-      // Check for duplicate transaction (same customer, same nominal, same day)
-      console.log('[Submit] Checking for duplicate transaction...');
-      const duplicate = await checkDuplicateTransaction(customer.id, nominal);
+      // Check for duplicate transaction (same customer, any time today)
+      const duplicate = await checkDuplicateTransaction(customer.id);
 
       if (duplicate) {
-        // Show confirmation dialog for duplicate
-        const isDuplicate = window.confirm(
-          `⚠️ Sudah ada transaksi hari ini untuk customer "${customer.nama}" dengan nominal Rp ${nominal.toLocaleString('id-ID')}.\n\n` +
-          `Waktu transaksi sebelumnya: ${new Date(duplicate.timestamp || duplicate.waktu).toLocaleString('id-ID')}\n\n` +
-          `Yakin ingin menambah transaksi lagi?`
+        // Block submission - cannot submit twice on same day
+        toast.error(
+          'Transaksi hari ini sudah tercatat!',
+          `Customer "${customer.nama}" sudah melakukan transaksi hari ini pada ${new Date(duplicate.timestamp || duplicate.waktu).toLocaleTimeString('id-ID')}. Transaksi hanya boleh 1x per hari.`
         );
-
-        if (!isDuplicate) {
-          toast.warning('Transaksi dibatalkan', 'Duplicate entry tidak jadi dicatat');
-          setSubmitting(false);
-          return;
-        }
+        setSubmitting(false);
+        return;
       }
 
       const payload = {
