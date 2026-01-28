@@ -196,8 +196,31 @@ export async function getUsers(token) {
       token,
     });
     // Backend returns { status, message, data: { users: [...] } }
-    const usersData = response.data || response;
-    return usersData.users || usersData || [];
+    console.log("[getUsers] Response:", response);
+    
+    if (!response) return [];
+    
+    // Handle the response data structure
+    let usersArray = [];
+    
+    if (response.data) {
+      // Standard format: { status, message, data: { users: [...] } }
+      if (response.data.users && Array.isArray(response.data.users)) {
+        usersArray = response.data.users;
+      } else if (Array.isArray(response.data)) {
+        // Direct array in data field
+        usersArray = response.data;
+      }
+    } else if (response.users && Array.isArray(response.users)) {
+      // Direct format: { users: [...] }
+      usersArray = response.users;
+    } else if (Array.isArray(response)) {
+      // Direct array
+      usersArray = response;
+    }
+    
+    console.log("[getUsers] Parsed users:", usersArray);
+    return usersArray;
   } catch (error) {
     throw new Error(`Failed to fetch users: ${error.message}`);
   }
@@ -276,8 +299,31 @@ export async function getCustomers(token) {
       token,
     });
     // Backend returns { status, message, data: { customers: [...] } }
-    const customersData = response.data || response;
-    return customersData.customers || customersData || [];
+    console.log("[getCustomers] Response:", response);
+    
+    if (!response) return [];
+    
+    // Handle the response data structure
+    let customersArray = [];
+    
+    if (response.data) {
+      // Standard format: { status, message, data: { customers: [...] } }
+      if (response.data.customers && Array.isArray(response.data.customers)) {
+        customersArray = response.data.customers;
+      } else if (Array.isArray(response.data)) {
+        // Direct array in data field
+        customersArray = response.data;
+      }
+    } else if (response.customers && Array.isArray(response.customers)) {
+      // Direct format: { customers: [...] }
+      customersArray = response.customers;
+    } else if (Array.isArray(response)) {
+      // Direct array
+      customersArray = response;
+    }
+    
+    console.log("[getCustomers] Parsed customers:", customersArray);
+    return customersArray;
   } catch (error) {
     throw new Error(`Failed to fetch customers: ${error.message}`);
   }
