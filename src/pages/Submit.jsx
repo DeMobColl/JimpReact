@@ -60,24 +60,24 @@ export default function Submit({ onBack, qrHash: propsQrHash }) {
     try {
       const result = await getTransactionHistory(token);
       const transactions = result.transactions || [];
-      
+
       // Get today's date at start of day
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       // Find transactions for this customer today with same nominal
       const duplicates = transactions.filter(tx => {
         const txCustomerId = tx.customer_id || tx.id || '';
         const txDate = new Date(tx.timestamp || tx.waktu || '');
         txDate.setHours(0, 0, 0, 0);
-        
+
         return (
           String(txCustomerId).trim() === String(customerId).trim() &&
           txDate.getTime() === today.getTime() &&
           Number(tx.nominal) === nominal
         );
       });
-      
+
       return duplicates.length > 0 ? duplicates[0] : null;
     } catch (error) {
       console.error('Error checking duplicates:', error);
@@ -112,7 +112,7 @@ export default function Submit({ onBack, qrHash: propsQrHash }) {
       // Check for duplicate transaction (same customer, same nominal, same day)
       console.log('[Submit] Checking for duplicate transaction...');
       const duplicate = await checkDuplicateTransaction(customer.id, nominal);
-      
+
       if (duplicate) {
         // Show confirmation dialog for duplicate
         const isDuplicate = window.confirm(
@@ -120,7 +120,7 @@ export default function Submit({ onBack, qrHash: propsQrHash }) {
           `Waktu transaksi sebelumnya: ${new Date(duplicate.timestamp || duplicate.waktu).toLocaleString('id-ID')}\n\n` +
           `Yakin ingin menambah transaksi lagi?`
         );
-        
+
         if (!isDuplicate) {
           toast.warning('Transaksi dibatalkan', 'Duplicate entry tidak jadi dicatat');
           setSubmitting(false);

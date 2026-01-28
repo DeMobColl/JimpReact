@@ -10,7 +10,7 @@ export default function ScanQR({ onBack, onNavigate }) {
   const [message, setMessage] = useState('');
   const html5QrCodeRef = useRef(null);
   const isScanningRef = useRef(false); // Use ref to avoid stale closure
-  
+
   // Detect browser type
   const [browserInfo] = useState(() => {
     const ua = navigator.userAgent;
@@ -19,7 +19,7 @@ export default function ScanQR({ onBack, onNavigate }) {
     const isFirefox = /Firefox/.test(ua);
     const isSafari = /Safari/.test(ua) && !/Chrome/.test(ua);
     const isEdge = /Edg/.test(ua);
-    
+
     return { isMobile, isChrome, isFirefox, isSafari, isEdge };
   });
 
@@ -125,9 +125,9 @@ export default function ScanQR({ onBack, onNavigate }) {
       html5QrCodeRef.current = new Html5Qrcode(scannerId);
 
       const qrBoxSize = window.innerWidth < 640 ? 160 : window.innerWidth < 1024 ? 180 : 200;
-      
+
       console.log('[ScanQR] Starting scanner with qrBoxSize:', qrBoxSize);
-      
+
       await html5QrCodeRef.current.start(
         { facingMode: 'environment' },
         {
