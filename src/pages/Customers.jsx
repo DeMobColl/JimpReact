@@ -11,6 +11,7 @@ import {
   createCustomer,
   updateCustomer,
   deleteCustomer,
+  bulkDeleteCustomers,
   bulkImportCustomers,
 } from '../services/api';
 
@@ -174,19 +175,19 @@ export default function Customers({ onBack }) {
 
       let response;
       if (formMode === 'create') {
-        response = await createCustomerInSheet(token, submitData);
+        response = await createCustomer(token, submitData);
       } else {
-        response = await updateCustomerInSheet(token, currentCustomer.id, submitData);
+        response = await updateCustomer(token, currentCustomer.id, submitData);
       }
 
-      if (response.status === 'success') {
+      if (response && (response.status === 'success' || response.id)) {
         toast.success(
           formMode === 'create' ? 'Customer berhasil ditambahkan' : 'Customer berhasil diupdate'
         );
         handleCloseForm();
         await loadCustomers();
       } else {
-        toast.error(response.message || 'Operasi gagal');
+        toast.error(response?.message || 'Operasi gagal');
       }
     } catch (error) {
       toast.error('Error saat menyimpan customer', error.message);
@@ -204,16 +205,12 @@ export default function Customers({ onBack }) {
     if (!customerToDelete || !token) return;
 
     try {
-      const response = await deleteCustomerInSheet(token, customerToDelete.id);
+      await deleteCustomer(token, customerToDelete.id);
 
-      if (response.status === 'success') {
-        toast.success('Customer berhasil dihapus');
-        setShowDeleteConfirm(false);
-        setCustomerToDelete(null);
-        await loadCustomers(true);
-      } else {
-        toast.error(response.message || 'Operasi gagal');
-      }
+      toast.success('Customer berhasil dihapus');
+      setShowDeleteConfirm(false);
+      setCustomerToDelete(null);
+      await loadCustomers(true);
     } catch (error) {
       toast.error('Error saat hapus customer', error.message);
     }
@@ -255,7 +252,7 @@ export default function Customers({ onBack }) {
     setIsDeleting(true);
     try {
       const customerIdsToDelete = Array.from(selectedCustomerIds);
-      const response = await bulkDeleteCustomersInSheet(token, customerIdsToDelete);
+      const response = await bulkDeleteCustomers(token, customerIdsToDelete);
 
       if (!response) {
         throw new Error('No response from server');

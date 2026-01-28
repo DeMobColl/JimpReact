@@ -406,6 +406,38 @@ export async function deleteCustomer(token, customerId) {
 }
 
 /**
+ * Bulk delete customers
+ * @param {string} token
+ * @param {Array} customerIds
+ * @returns {Promise<{deleted: number, excluded: Array}>}
+ */
+export async function bulkDeleteCustomers(token, customerIds) {
+  try {
+    const deleted = [];
+    const excluded = [];
+
+    // Delete customers one by one
+    for (const id of customerIds) {
+      try {
+        await deleteCustomer(token, id);
+        deleted.push(id);
+      } catch (error) {
+        excluded.push({ id, error: error.message });
+      }
+    }
+
+    return {
+      status: 'success',
+      deleted: deleted.length,
+      excluded,
+      totalRequested: customerIds.length,
+    };
+  } catch (error) {
+    throw new Error(`Failed to bulk delete customers: ${error.message}`);
+  }
+}
+
+/**
  * Bulk import customers
  * @param {string} token
  * @param {Array} customers
