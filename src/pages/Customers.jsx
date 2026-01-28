@@ -7,13 +7,12 @@ import BulkDownloadQRModal from '../components/BulkDownloadQRModal';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import {
-  getCustomersFromSheet,
-  createCustomerInSheet,
-  updateCustomerInSheet,
-  deleteCustomerInSheet,
-  importCustomersFromSheet,
-  bulkDeleteCustomersInSheet,
-} from '../services/sheets';
+  getCustomers,
+  createCustomer,
+  updateCustomer,
+  deleteCustomer,
+  bulkImportCustomers,
+} from '../services/api';
 
 export default function Customers({ onBack }) {
   const { currentUser, token } = useAuth();
@@ -24,7 +23,7 @@ export default function Customers({ onBack }) {
   const [loading, setLoading] = useState(true);
   const [searchName, setSearchName] = useState('');
   const [searchBlok, setSearchBlok] = useState('');
-  
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
@@ -68,30 +67,24 @@ export default function Customers({ onBack }) {
   async function loadCustomers(skipCache = false) {
     try {
       setLoading(true);
-      const response = await getCustomersFromSheet(skipCache);
-      
-      if (response.status === 'success') {
-        
-        // Sanitize customer data - ensure all properties are strings
-        const sanitizedData = (response.data || []).map(customer => ({
-          ...customer,
-          id: customer.id || '',
-          blok: customer.blok || '',
-          nama: customer.nama || '',
-          qrHash: customer.qrHash || '',
-          createdAt: customer.createdAt || '',
-          totalSetoran: customer.totalSetoran || 0,
-          lastTransaction: customer.lastTransaction || null
-        }));
-        
-        setCustomers(sanitizedData);
-      } else {
-        toast.error(response.message || 'Gagal memuat data customer');
-        setCustomers([]); // Set empty array on error
-      }
+      const customersArray = await getCustomers(token);
+
+      // Sanitize customer data
+      const sanitizedData = (customersArray || []).map(customer => ({
+        ...customer,
+        id: customer.id || '',
+        blok: customer.blok || '',
+        nama: customer.nama || '',
+        qr_hash: customer.qr_hash || customer.qrHash || '',
+        created_at: customer.created_at || customer.createdAt || '',
+        total_setoran: customer.total_setoran || customer.totalSetoran || 0,
+        last_transaction: customer.last_transaction || customer.lastTransaction || null
+      }));
+
+      setCustomers(sanitizedData);
     } catch (error) {
       toast.error('Error memuat data customer', error.message);
-      setCustomers([]); // Set empty array on error
+      setCustomers([]);
     } finally {
       setLoading(false);
     }
@@ -103,7 +96,7 @@ export default function Customers({ onBack }) {
       // Safety checks untuk null/undefined
       const customerName = customer?.nama || '';
       const customerBlok = customer?.blok || '';
-      
+
       const nameMatch = customerName.toString().toLowerCase().includes(searchName.toLowerCase());
       const blokMatch = customerBlok.toString().toLowerCase().includes(searchBlok.toLowerCase());
       return nameMatch && blokMatch;
@@ -154,7 +147,7 @@ export default function Customers({ onBack }) {
     // Validation - Convert to string first
     const blokStr = String(formData.blok || '').trim();
     const namaStr = String(formData.nama || '').trim();
-    
+
     if (!blokStr || !namaStr) {
       toast.error('Blok dan nama harus diisi');
       return;
@@ -212,7 +205,7 @@ export default function Customers({ onBack }) {
 
     try {
       const response = await deleteCustomerInSheet(token, customerToDelete.id);
-      
+
       if (response.status === 'success') {
         toast.success('Customer berhasil dihapus');
         setShowDeleteConfirm(false);
@@ -263,14 +256,14 @@ export default function Customers({ onBack }) {
     try {
       const customerIdsToDelete = Array.from(selectedCustomerIds);
       const response = await bulkDeleteCustomersInSheet(token, customerIdsToDelete);
-      
+
       if (!response) {
         throw new Error('No response from server');
       }
-      
+
       // Wait for backend to process
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       // Set delete result for popup
       setDeleteResult({
         status: response.status,
@@ -281,7 +274,7 @@ export default function Customers({ onBack }) {
       setShowDeleteResult(true);
       setShowBulkDeleteConfirm(false);
       setSelectedCustomerIds(new Set());
-      
+
       // Reload customers - make sure this completes
       try {
         await loadCustomers(true);
@@ -321,7 +314,7 @@ export default function Customers({ onBack }) {
 
     try {
       const response = await importCustomersFromSheet(token, customersToImport);
-      
+
       if (response.status === 'success') {
         toast.success(`Import berhasil: ${customersToImport.length} customer ditambahkan`);
         await loadCustomers();
@@ -350,7 +343,7 @@ export default function Customers({ onBack }) {
       <div className="flex-1 overflow-auto p-3 md:p-4">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-xl shadow-slate-300/50 dark:shadow-none border border-slate-200/60 dark:border-gray-700/60 p-4 md:p-5">
-            
+
             {/* Header */}
             <div className="mb-4">
               <div className="flex justify-between items-start mb-2">
@@ -436,241 +429,240 @@ export default function Customers({ onBack }) {
 
             {/* Content */}
             <div className="space-y-3">
-      {/* Stats Info */}
-      <div className="text-xs text-gray-600 dark:text-gray-400">
-        Total: <strong>{customers.length}</strong> customer • Halaman {currentPage} dari {totalPages || 1}
-      </div>
+              {/* Stats Info */}
+              <div className="text-xs text-gray-600 dark:text-gray-400">
+                Total: <strong>{customers.length}</strong> customer • Halaman {currentPage} dari {totalPages || 1}
+              </div>
 
-      {/* Search Filters */}
-      {customers.length > 0 && (
-        <div className="mb-4 flex flex-col sm:flex-row gap-3 items-center">
-          <div className="flex-1 relative w-full">
-            <input
-              type="text"
-              placeholder="Cari nama customer..."
-              value={searchName}
-              onChange={(e) => setSearchName(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-            />
-            <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-          <div className="flex-1 relative w-full">
-            <input
-              type="text"
-              placeholder="Cari blok..."
-              value={searchBlok}
-              onChange={(e) => setSearchBlok(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-            />
-            <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-          </div>
-          <div className="flex gap-2 w-full sm:w-auto">
-            {(searchName || searchBlok) && (
-              <button
-                onClick={() => {
-                  setSearchName('');
-                  setSearchBlok('');
-                }}
-                className="flex-1 sm:flex-initial px-4 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors"
-              >
-                Reset
-              </button>
-            )}
-            <button
-              onClick={toggleSelectAllCustomers}
-              className={`flex-1 sm:flex-initial px-4 py-3 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap ${
-                selectedCustomerIds.size > 0
-                  ? 'bg-orange-500 hover:bg-orange-600 text-white'
-                  : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200'
-              }`}
-              title={selectedCustomerIds.size > 0 ? 'Batal Pilih' : 'Pilih Semua'}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {selectedCustomerIds.size > 0 ? `Pilih (${selectedCustomerIds.size})` : 'Pilih Semua'}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Filter Results Info */}
-      {customers.length > 0 && (
-        <div className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-          Menampilkan {filteredCustomers.length} dari {customers.length} customer
-        </div>
-      )}
-
-      {/* Empty State */}
-      {customers.length === 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-12 text-center">
-          <div className="text-6xl mb-4">📋</div>
-          <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Belum Ada Customer
-          </h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">
-            Tambahkan customer pertama untuk mulai menggunakan sistem Jimpitan
-          </p>
-          <button
-            onClick={handleCreate}
-            className="px-6 py-3 bg-gradient-to-r from-red-500/80 to-orange-500/80 backdrop-blur-md hover:from-red-600 hover:to-orange-600 text-white font-semibold rounded-lg transition-colors border border-red-300/50"
-          >
-            Tambah Customer Pertama
-          </button>
-        </div>
-      )}
-
-      {/* No Results State */}
-      {customers.length > 0 && filteredCustomers.length === 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-12 text-center">
-          <div className="text-6xl mb-4">🔍</div>
-          <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Tidak Ada Hasil
-          </h3>
-          <p className="text-gray-500 dark:text-gray-400">
-            Coba ubah kata kunci pencarian Anda
-          </p>
-        </div>
-      )}
-
-      {/* Customer Grid */}
-      {filteredCustomers.length > 0 && (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-4">
-            {paginatedCustomers.map((customer) => {
-              // Safety check untuk data customer
-              if (!customer || !customer.id) return null;
-              
-              return (
-              <div
-                key={customer.id}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
-              >
-                {/* Card Header - Selectable Title */}
-                <div
-                  onClick={() => toggleCustomerSelection(customer.id)}
-                  className={`bg-gradient-to-r from-red-500 to-red-600 p-3 text-white text-center cursor-pointer hover:shadow-md transition-all ${
-                    selectedCustomerIds.has(customer.id)
-                      ? 'from-red-500 to-red-600 ring-2 ring-white ring-inset'
-                      : 'hover:from-red-600 hover:to-red-700'
-                  }`}
-                  title={selectedCustomerIds.has(customer.id) ? 'Batal Pilih' : 'Pilih Customer'}
-                >
-                  <div className="text-xs opacity-75 mb-1">Blok {customer.blok || '-'}</div>
-                  <div className="text-lg font-bold mb-1">{customer.id || '-'}</div>
-                  <div className="text-sm font-semibold">{customer.nama || '-'}</div>
-                </div>
-
-                {/* Card Body */}
-                <div className="p-3">
-                  {/* QR Hash - Center */}
-                  <div className="mb-3 text-center">
-                    <div className="font-mono text-lg bg-gradient-to-r from-red-100 to-white dark:from-red-900/30 dark:to-gray-900/30 px-3 py-2 rounded-lg font-bold text-red-700 dark:text-red-300">
-                      {customer.qrHash || '-'}
-                    </div>
+              {/* Search Filters */}
+              {customers.length > 0 && (
+                <div className="mb-4 flex flex-col sm:flex-row gap-3 items-center">
+                  <div className="flex-1 relative w-full">
+                    <input
+                      type="text"
+                      placeholder="Cari nama customer..."
+                      value={searchName}
+                      onChange={(e) => setSearchName(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    />
+                    <svg
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
                   </div>
-
-                  {/* Stats */}
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded-lg">
-                      <div className="text-xs text-green-600 dark:text-green-400">Total</div>
-                      <div className="text-sm font-bold text-green-700 dark:text-green-300">
-                        Rp {(customer.totalSetoran || 0).toLocaleString('id-ID')}
-                      </div>
-                    </div>
-                    <div className="bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">
-                      <div className="text-xs text-red-600 dark:text-red-400">Terakhir Pencatatan</div>
-                      <div className="text-xs font-semibold text-red-700 dark:text-red-300">
-                        {customer.lastTransaction
-                          ? new Date(customer.lastTransaction).toLocaleDateString('id-ID', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric'
-                            }) + ', ' + new Date(customer.lastTransaction).toLocaleTimeString('id-ID', {
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })
-                          : '-'}
-                      </div>
-                    </div>
+                  <div className="flex-1 relative w-full">
+                    <input
+                      type="text"
+                      placeholder="Cari blok..."
+                      value={searchBlok}
+                      onChange={(e) => setSearchBlok(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    />
+                    <svg
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
                   </div>
-
-                  {/* Action Buttons */}
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="flex gap-2 w-full sm:w-auto">
+                    {(searchName || searchBlok) && (
+                      <button
+                        onClick={() => {
+                          setSearchName('');
+                          setSearchBlok('');
+                        }}
+                        className="flex-1 sm:flex-initial px-4 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors"
+                      >
+                        Reset
+                      </button>
+                    )}
                     <button
-                      onClick={() => handleShowQR(customer)}
-                      className="px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-1"
-                      title="Lihat QR Code"
+                      onClick={toggleSelectAllCustomers}
+                      className={`flex-1 sm:flex-initial px-4 py-3 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap ${selectedCustomerIds.size > 0
+                          ? 'bg-orange-500 hover:bg-orange-600 text-white'
+                          : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200'
+                        }`}
+                      title={selectedCustomerIds.size > 0 ? 'Batal Pilih' : 'Pilih Semua'}
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      QR
-                    </button>
-                    <button
-                      onClick={() => handleEdit(customer)}
-                      className="px-3 py-2 bg-gradient-to-r from-red-500/80 to-orange-500/80 backdrop-blur-md hover:from-red-600 hover:to-orange-600 text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-1 border border-red-300/50"
-                      title="Edit Customer"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(customer)}
-                      className="px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-1"
-                      title="Hapus Customer"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                      Hapus
+                      {selectedCustomerIds.size > 0 ? `Pilih (${selectedCustomerIds.size})` : 'Pilih Semua'}
                     </button>
                   </div>
                 </div>
-              </div>
-            )})}
-          </div>
+              )}
 
-          {/* Pagination - Fixed at bottom */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2 py-3">
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-              >
-                ‹ Prev
-              </button>
-              <div className="text-sm text-gray-600 dark:text-gray-400 px-3">
-                {currentPage} / {totalPages}
-              </div>
-              <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-              >
-                Next ›
-              </button>
-            </div>
-          )}
-        </>
-      )}
+              {/* Filter Results Info */}
+              {customers.length > 0 && (
+                <div className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+                  Menampilkan {filteredCustomers.length} dari {customers.length} customer
+                </div>
+              )}
+
+              {/* Empty State */}
+              {customers.length === 0 && (
+                <div className="bg-white dark:bg-gray-800 rounded-xl p-12 text-center">
+                  <div className="text-6xl mb-4">📋</div>
+                  <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    Belum Ada Customer
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400 mb-6">
+                    Tambahkan customer pertama untuk mulai menggunakan sistem Jimpitan
+                  </p>
+                  <button
+                    onClick={handleCreate}
+                    className="px-6 py-3 bg-gradient-to-r from-red-500/80 to-orange-500/80 backdrop-blur-md hover:from-red-600 hover:to-orange-600 text-white font-semibold rounded-lg transition-colors border border-red-300/50"
+                  >
+                    Tambah Customer Pertama
+                  </button>
+                </div>
+              )}
+
+              {/* No Results State */}
+              {customers.length > 0 && filteredCustomers.length === 0 && (
+                <div className="bg-white dark:bg-gray-800 rounded-xl p-12 text-center">
+                  <div className="text-6xl mb-4">🔍</div>
+                  <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    Tidak Ada Hasil
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    Coba ubah kata kunci pencarian Anda
+                  </p>
+                </div>
+              )}
+
+              {/* Customer Grid */}
+              {filteredCustomers.length > 0 && (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-4">
+                    {paginatedCustomers.map((customer) => {
+                      // Safety check untuk data customer
+                      if (!customer || !customer.id) return null;
+
+                      return (
+                        <div
+                          key={customer.id}
+                          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
+                        >
+                          {/* Card Header - Selectable Title */}
+                          <div
+                            onClick={() => toggleCustomerSelection(customer.id)}
+                            className={`bg-gradient-to-r from-red-500 to-red-600 p-3 text-white text-center cursor-pointer hover:shadow-md transition-all ${selectedCustomerIds.has(customer.id)
+                                ? 'from-red-500 to-red-600 ring-2 ring-white ring-inset'
+                                : 'hover:from-red-600 hover:to-red-700'
+                              }`}
+                            title={selectedCustomerIds.has(customer.id) ? 'Batal Pilih' : 'Pilih Customer'}
+                          >
+                            <div className="text-xs opacity-75 mb-1">Blok {customer.blok || '-'}</div>
+                            <div className="text-lg font-bold mb-1">{customer.id || '-'}</div>
+                            <div className="text-sm font-semibold">{customer.nama || '-'}</div>
+                          </div>
+
+                          {/* Card Body */}
+                          <div className="p-3">
+                            {/* QR Hash - Center */}
+                            <div className="mb-3 text-center">
+                              <div className="font-mono text-lg bg-gradient-to-r from-red-100 to-white dark:from-red-900/30 dark:to-gray-900/30 px-3 py-2 rounded-lg font-bold text-red-700 dark:text-red-300">
+                                {customer.qrHash || '-'}
+                              </div>
+                            </div>
+
+                            {/* Stats */}
+                            <div className="grid grid-cols-2 gap-2 mb-3">
+                              <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded-lg">
+                                <div className="text-xs text-green-600 dark:text-green-400">Total</div>
+                                <div className="text-sm font-bold text-green-700 dark:text-green-300">
+                                  Rp {(customer.totalSetoran || 0).toLocaleString('id-ID')}
+                                </div>
+                              </div>
+                              <div className="bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">
+                                <div className="text-xs text-red-600 dark:text-red-400">Terakhir Pencatatan</div>
+                                <div className="text-xs font-semibold text-red-700 dark:text-red-300">
+                                  {customer.lastTransaction
+                                    ? new Date(customer.lastTransaction).toLocaleDateString('id-ID', {
+                                      day: 'numeric',
+                                      month: 'short',
+                                      year: 'numeric'
+                                    }) + ', ' + new Date(customer.lastTransaction).toLocaleTimeString('id-ID', {
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })
+                                    : '-'}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="grid grid-cols-3 gap-2">
+                              <button
+                                onClick={() => handleShowQR(customer)}
+                                className="px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-1"
+                                title="Lihat QR Code"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                </svg>
+                                QR
+                              </button>
+                              <button
+                                onClick={() => handleEdit(customer)}
+                                className="px-3 py-2 bg-gradient-to-r from-red-500/80 to-orange-500/80 backdrop-blur-md hover:from-red-600 hover:to-orange-600 text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-1 border border-red-300/50"
+                                title="Edit Customer"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteClick(customer)}
+                                className="px-3 py-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-1"
+                                title="Hapus Customer"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Hapus
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* Pagination - Fixed at bottom */}
+                  {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-2 py-3">
+                      <button
+                        onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                      >
+                        ‹ Prev
+                      </button>
+                      <div className="text-sm text-gray-600 dark:text-gray-400 px-3">
+                        {currentPage} / {totalPages}
+                      </div>
+                      <button
+                        onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                      >
+                        Next ›
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -678,11 +670,11 @@ export default function Customers({ onBack }) {
 
       {/* Create/Edit Form Modal */}
       {showForm && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
           onClick={handleCloseForm}
         >
-          <div 
+          <div
             className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full p-6"
             onClick={(e) => e.stopPropagation()}
           >
@@ -781,7 +773,7 @@ export default function Customers({ onBack }) {
       {showQRCard && qrCustomer && <QRCard customer={qrCustomer} onClose={handleCloseQR} />}
 
       {/* Import Customer Modal */}
-      <ImportCustomerModal 
+      <ImportCustomerModal
         isOpen={showImportModal}
         onClose={() => setShowImportModal(false)}
         onImport={handleImportCustomers}
@@ -796,11 +788,11 @@ export default function Customers({ onBack }) {
 
       {/* Bulk Delete Confirmation Dialog */}
       {showBulkDeleteConfirm && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
           onClick={() => setShowBulkDeleteConfirm(false)}
         >
-          <div 
+          <div
             className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full p-6"
             onClick={(e) => e.stopPropagation()}
           >
@@ -810,7 +802,7 @@ export default function Customers({ onBack }) {
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               Apakah Anda yakin ingin menghapus {selectedCustomerIds.size} customer yang dipilih? Tindakan ini tidak dapat dibatalkan.
             </p>
-            
+
             {isDeleting && (
               <div className="flex flex-col items-center justify-center mb-6">
                 <svg className="w-12 h-12 text-red-500 animate-spin mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -819,7 +811,7 @@ export default function Customers({ onBack }) {
                 <p className="text-sm text-gray-600 dark:text-gray-400">Menghapus customer...</p>
               </div>
             )}
-            
+
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowBulkDeleteConfirm(false)}
@@ -842,11 +834,11 @@ export default function Customers({ onBack }) {
 
       {/* Bulk Delete Result Modal */}
       {showDeleteResult && deleteResult && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
           onClick={() => setShowDeleteResult(false)}
         >
-          <div 
+          <div
             className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full p-6"
             onClick={(e) => e.stopPropagation()}
           >

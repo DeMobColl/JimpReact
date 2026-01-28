@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useToast } from '../hooks/useToast';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { fetchHistoryFromSheet } from '../services/sheets';
+import { getTransactionHistory } from '../services/api';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
 export default function History({ onBack }) {
-  const { currentUser } = useAuth();
+  const { currentUser, token } = useAuth();
   const toast = useToast();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -24,9 +24,9 @@ export default function History({ onBack }) {
   const loadTransactions = async () => {
     setLoading(true);
     try {
-      const data = await fetchHistoryFromSheet();
-      if (Array.isArray(data)) {
-        setTransactions(data);
+      const result = await getTransactionHistory(token);
+      if (Array.isArray(result.transactions)) {
+        setTransactions(result.transactions);
       } else {
         setTransactions([]);
         toast.error('Format data tidak valid');
@@ -51,7 +51,7 @@ export default function History({ onBack }) {
 
     let matchesDate = true;
     const txDate = new Date(tx.timestamp || tx.waktu);
-    
+
     if (selectedMonth) {
       matchesDate = matchesDate && txDate.getMonth() === parseInt(selectedMonth);
     }
@@ -82,9 +82,9 @@ export default function History({ onBack }) {
     // Jika timestamp
     const date = new Date(timestamp);
     if (isNaN(date.getTime())) return timestamp || '-';
-    return date.toLocaleString('id-ID', { 
-      day: '2-digit', 
-      month: 'short', 
+    return date.toLocaleString('id-ID', {
+      day: '2-digit',
+      month: 'short',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
@@ -97,7 +97,7 @@ export default function History({ onBack }) {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-  
+
   // Get unique years from data
   const years = [...new Set(transactions.map(tx => {
     const date = new Date(tx.timestamp || tx.waktu);
@@ -136,12 +136,12 @@ export default function History({ onBack }) {
     setIsExportingPDF(true);
     try {
       const doc = new jsPDF();
-      
+
       // Title
       doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
       doc.text('Laporan Transaksi Jimpitan', 105, 15, { align: 'center' });
-      
+
       // Period
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
@@ -154,7 +154,7 @@ export default function History({ onBack }) {
         periode = `Tahun ${selectedYear}`;
       }
       doc.text(`Periode: ${periode}`, 105, 22, { align: 'center' });
-      
+
       // Export date
       doc.setFontSize(9);
       const exportDate = new Date().toLocaleString('id-ID');
@@ -247,7 +247,7 @@ export default function History({ onBack }) {
 
       // Create worksheet
       const worksheet = XLSX.utils.json_to_sheet(excelData);
-      
+
       // Set column widths
       worksheet['!cols'] = [
         { wch: 5 },  // No
@@ -288,7 +288,7 @@ export default function History({ onBack }) {
       <div className="flex-1 overflow-auto p-3 md:p-4">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-xl shadow-slate-300/50 dark:shadow-none border border-slate-200/60 dark:border-gray-700/60 p-4 md:p-5">
-            
+
             {/* Header */}
             <div className="mb-4">
               <div className="flex justify-between items-start mb-2">

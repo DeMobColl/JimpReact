@@ -1,9 +1,9 @@
 import { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import {
-  loginWithSheet,
-  verifyToken,
-  logoutFromSheet,
-} from '../services/sheets';
+  loginWithAPI,
+  verifyTokenAPI,
+  logoutAPI,
+} from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
 const CURRENT_USER_KEY = 'jimpitanCurrentUser';
@@ -58,12 +58,12 @@ export function AuthProvider({ children }) {
   // Verify and restore session
   const verifyAndRestoreSession = useCallback(async () => {
     if (!token) return false;
-    
+
     setLoading(true);
     try {
-      const response = await verifyToken(token);
-      if (response.status === 'success' && response.data) {
-        setCurrentUser(response.data);
+      const response = await verifyTokenAPI(token);
+      if (response.user) {
+        setCurrentUser(response.user);
         return true;
       } else {
         clearSession();
@@ -89,16 +89,16 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (username, password) => {
     setLoading(true);
     setError('');
-    
+
     try {
-      const response = await loginWithSheet(username.trim(), password.trim());
-      
-      if (response.status === 'success' && response.data) {
-        setCurrentUser(response.data);
-        setToken(response.data.token);
-        return response.data;
+      const response = await loginWithAPI(username.trim(), password.trim());
+
+      if (response.token && response.user) {
+        setCurrentUser(response.user);
+        setToken(response.token);
+        return response.user;
       } else {
-        throw new Error(response.message || 'Login gagal');
+        throw new Error('Login gagal');
       }
     } catch (err) {
       setError(err.message || 'Login gagal');
@@ -113,7 +113,7 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       if (token) {
-        await logoutFromSheet(token);
+        await logoutAPI(token);
       }
     } catch (err) {
       // Logout error ignored
@@ -135,16 +135,10 @@ export function AuthProvider({ children }) {
     ensureLoaded();
   }, []);
 
-  // Setup global token invalid handler
+  // Token invalid handler (if needed)
   useEffect(() => {
-    // Import setTokenInvalidHandler dynamically to avoid circular dependency
-    import('../services/sheets').then(({ setTokenInvalidHandler }) => {
-      setTokenInvalidHandler(() => {
-        clearSession();
-        navigate('/login', { replace: true });
-      });
-    });
-  }, [clearSession, navigate]);
+    // No need for global handler with REST API since we handle errors directly
+  }, []);
 
   // Auto-check token expiry every 30 minutes (not too aggressive)
   useEffect(() => {
@@ -152,8 +146,8 @@ export function AuthProvider({ children }) {
 
     const checkTokenExpiry = async () => {
       try {
-        const response = await verifyToken(token);
-        if (response.status !== 'success') {
+        const response = await verifyTokenAPI(token);
+        if (!response.user) {
           // Token expired or invalid
           clearSession();
           navigate('/login', { replace: true });
@@ -171,7 +165,7 @@ export function AuthProvider({ children }) {
     // Don't check immediately on mount - let the page load first
     // Only check periodically
     const interval = setInterval(checkTokenExpiry, 30 * 60 * 1000); // Every 30 minutes
-    
+
     return () => clearInterval(interval);
   }, [token, currentUser, clearSession, navigate]);
 

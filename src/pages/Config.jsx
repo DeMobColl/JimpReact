@@ -3,29 +3,27 @@ import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import PageLayout from '../components/PageLayout';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { 
-  getConfig, 
-  updateConfig, 
-  verifyConfigPassword,
-  updateConfigPassword 
-} from '../services/sheets';
+import {
+  getConfig,
+  updateConfig
+} from '../services/api';
 
 export default function Config({ onBack }) {
   const { token } = useAuth();
   const toast = useToast();
-  
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showPasswordDialog, setShowPasswordDialog] = useState(true);
   const [password, setPassword] = useState('');
   const [verifying, setVerifying] = useState(false);
-  
+
   // Config state
   const [config, setConfig] = useState({
     allowPetugasWebLogin: true,
   });
-  
+
   // Change password state
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
@@ -86,7 +84,7 @@ export default function Config({ onBack }) {
     try {
       const newValue = !config[key];
       const response = await updateConfig(token, key, newValue);
-      
+
       if (response.status === 'success') {
         setConfig(prev => ({ ...prev, [key]: newValue }));
         toast.success('Konfigurasi berhasil diupdate');
@@ -102,17 +100,17 @@ export default function Config({ onBack }) {
 
   const handleChangePasswordSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
       toast.error('Semua field harus diisi');
       return;
     }
-    
+
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       toast.error('Password baru dan konfirmasi tidak cocok');
       return;
     }
-    
+
     if (passwordForm.newPassword.length < 6) {
       toast.error('Password minimal 6 karakter');
       return;
@@ -121,11 +119,11 @@ export default function Config({ onBack }) {
     setSaving(true);
     try {
       const response = await updateConfigPassword(
-        token, 
-        passwordForm.currentPassword, 
+        token,
+        passwordForm.currentPassword,
         passwordForm.newPassword
       );
-      
+
       if (response.status === 'success') {
         toast.success('Password konfigurasi berhasil diubah');
         setShowChangePassword(false);
@@ -221,13 +219,13 @@ export default function Config({ onBack }) {
   }
 
   return (
-    <PageLayout 
-      title="⚙️ Konfigurasi Sistem" 
+    <PageLayout
+      title="⚙️ Konfigurasi Sistem"
       subtitle="Pengaturan dan kontrol sistem aplikasi"
       onBack={onBack}
     >
       <div className="max-w-4xl mx-auto space-y-4">
-        
+
         {/* Security Warning */}
         <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4">
           <div className="flex items-start gap-3">
@@ -265,29 +263,26 @@ export default function Config({ onBack }) {
                 </p>
               </div>
             </div>
-            
+
             <button
               onClick={() => handleToggleConfig('allowPetugasWebLogin')}
               disabled={saving}
-              className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-                config.allowPetugasWebLogin
+              className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${config.allowPetugasWebLogin
                   ? 'bg-green-500'
                   : 'bg-gray-300 dark:bg-gray-600'
-              }`}
+                }`}
             >
               <span
-                className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                  config.allowPetugasWebLogin ? 'translate-x-7' : 'translate-x-1'
-                }`}
+                className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${config.allowPetugasWebLogin ? 'translate-x-7' : 'translate-x-1'
+                  }`}
               />
             </button>
           </div>
 
-          <div className={`p-4 rounded-lg border-2 ${
-            config.allowPetugasWebLogin
+          <div className={`p-4 rounded-lg border-2 ${config.allowPetugasWebLogin
               ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700'
               : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700'
-          }`}>
+            }`}>
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0">
                 {config.allowPetugasWebLogin ? (
@@ -301,18 +296,16 @@ export default function Config({ onBack }) {
                 )}
               </div>
               <div className="flex-1">
-                <p className={`text-sm font-semibold ${
-                  config.allowPetugasWebLogin
+                <p className={`text-sm font-semibold ${config.allowPetugasWebLogin
                     ? 'text-green-900 dark:text-green-300'
                     : 'text-red-900 dark:text-red-300'
-                }`}>
+                  }`}>
                   Status: {config.allowPetugasWebLogin ? 'Diizinkan ✅' : 'Diblokir 🚫'}
                 </p>
-                <p className={`text-xs mt-1 ${
-                  config.allowPetugasWebLogin
+                <p className={`text-xs mt-1 ${config.allowPetugasWebLogin
                     ? 'text-green-700 dark:text-green-400'
                     : 'text-red-700 dark:text-red-400'
-                }`}>
+                  }`}>
                   {config.allowPetugasWebLogin
                     ? 'Petugas dapat login melalui aplikasi web'
                     : 'Petugas tidak dapat login melalui aplikasi web (hanya admin)'}
@@ -340,7 +333,7 @@ export default function Config({ onBack }) {
                 </p>
               </div>
             </div>
-            
+
             <button
               onClick={() => setShowChangePassword(!showChangePassword)}
               className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transition-all"
@@ -411,7 +404,7 @@ export default function Config({ onBack }) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="text-sm text-blue-900 dark:text-blue-300">
-              Konfigurasi ini memerlukan password khusus yang berbeda dengan password login admin. 
+              Konfigurasi ini memerlukan password khusus yang berbeda dengan password login admin.
               Pastikan password disimpan dengan aman dan hanya dibagikan kepada personel yang berwenang.
             </p>
           </div>

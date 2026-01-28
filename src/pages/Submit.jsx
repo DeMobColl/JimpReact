@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PageLayout from '../components/PageLayout';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
-import { getCustomerByQRHash, submitToSheet } from '../services/sheets';
+import { getCustomerByQRHash, submitTransaction } from '../services/api';
 
 export default function Submit({ onBack, qrHash: propsQrHash }) {
   const { currentUser, token } = useAuth();
   const toast = useToast();
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -31,10 +33,10 @@ export default function Submit({ onBack, qrHash: propsQrHash }) {
   async function loadCustomerData() {
     try {
       setLoading(true);
-      const response = await getCustomerByQRHash(qrHash);
-      
-      if (response.status === 'success' && response.data) {
-        setCustomer(response.data);
+      const customer = await getCustomerByQRHash(token, qrHash);
+
+      if (customer) {
+        setCustomer(customer);
       } else {
         toast.error('Customer tidak ditemukan', 'QR Code tidak valid atau customer telah dihapus');
       }
@@ -78,29 +80,25 @@ export default function Submit({ onBack, qrHash: propsQrHash }) {
       setSubmitting(true);
 
       const payload = {
-        customer_id: customer.id,  // CUST-xxx
-        id: customer.blok,         // Blok number
+        customer_id: customer.id,
+        blok: customer.blok,
         nama: customer.nama,
         nominal: nominal,
         user_id: currentUser.id,
         petugas: currentUser.name
       };
 
-      const response = await submitToSheet(payload);
-      
-      if (response.status === 'success') {
-        toast.success('Transaksi berhasil dicatat!');
-        
-        // Reset form
-        setFormData({ nominal: '' });
-        
-        // Navigate after short delay
-        setTimeout(() => {
-          navigate('/my-history');
-        }, 1500);
-      } else {
-        toast.error(response.message || 'Gagal menyimpan transaksi');
-      }
+      await submitTransaction(token, payload);
+
+      toast.success('Transaksi berhasil dicatat!');
+
+      // Reset form
+      setFormData({ nominal: '' });
+
+      // Navigate after short delay
+      setTimeout(() => {
+        navigate('/my-history');
+      }, 1500);
 
     } catch (error) {
       toast.error('Gagal menyimpan transaksi', error.message);
@@ -175,7 +173,7 @@ export default function Submit({ onBack, qrHash: propsQrHash }) {
               <div className="text-xl md:text-2xl font-bold">{customer.nama}</div>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-3 md:gap-4 pt-3 md:pt-4 border-t border-white/20">
             <div>
               <div className="text-xs md:text-sm opacity-75">Blok</div>

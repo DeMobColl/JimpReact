@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { getUserTransactions, deleteTransaction } from '../services/sheets';
+import { getMyTransactionHistory } from '../services/api';
 import { useToast } from '../hooks/useToast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PageLayout from '../components/PageLayout';
@@ -44,7 +44,7 @@ export default function MyHistory({ onBack }) {
 
       setLoading(true);
       setError(null);
-      
+
       // Set timeout fallback
       const timeoutId = setTimeout(() => {
         if (active) {
@@ -54,19 +54,14 @@ export default function MyHistory({ onBack }) {
       }, 20000); // 20 second timeout
 
       try {
-        const res = await getUserTransactions(token);
+        const result = await getMyTransactionHistory(token);
         clearTimeout(timeoutId);
-        
+
         if (!active) return;
-        
-        if (!res || res.status !== 'success') {
-          throw new Error(res && res.message ? res.message : 'Gagal memuat riwayat');
-        }
-        
-        // Backend returns { data: { user, transactions, total } }
-        const rows = Array.isArray(res.data?.transactions) ? res.data.transactions : 
-                     Array.isArray(res.data) ? res.data : [];
-        
+
+        // Backend returns { transactions: [...], total: number }
+        const rows = Array.isArray(result?.transactions) ? result.transactions : [];
+
         // Defensive normalization: ensure expected fields exist
         // Backend already filters by user_id for petugas role
         const cleaned = rows.map(r => ({
@@ -79,7 +74,7 @@ export default function MyHistory({ onBack }) {
           user_id: String(r.user_id || ''),
           petugas: String(r.petugas || currentUser?.name || '')
         }));
-        
+
         setTransactions(cleaned);
       } catch (e) {
         clearTimeout(timeoutId);
@@ -91,7 +86,7 @@ export default function MyHistory({ onBack }) {
         if (active) setLoading(false);
       }
     };
-    
+
     load();
     return () => { active = false; };
   }, [token]);
@@ -204,8 +199,8 @@ export default function MyHistory({ onBack }) {
               ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                   {paged.map(t => (
-                    <div 
-                      key={t.txid} 
+                    <div
+                      key={t.txid}
                       className="p-4 rounded-lg border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-900 hover:shadow-md transition-shadow"
                     >
                       <div className="flex justify-between items-start mb-2">
@@ -242,7 +237,7 @@ export default function MyHistory({ onBack }) {
                   ))}
                 </div>
               )}
-            </> 
+            </>
           )}
 
           {/* Summary - Only show if there are transactions */}

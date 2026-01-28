@@ -4,7 +4,7 @@ import { useToast } from '../hooks/useToast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ConfirmDialog from '../components/ConfirmDialog';
 import ImportUserModal from '../components/ImportUserModal';
-import { getUsersFromSheet, createUserInSheet, updateUserInSheet, deleteUserInSheet, getUserActivity, importUsersFromSheet, bulkDeleteUsersInSheet } from '../services/sheets';
+import { getUsers, createUser, updateUser, deleteUser } from '../services/api';
 
 export default function Users({ onBack }) {
   const { currentUser, token } = useAuth();
@@ -15,7 +15,7 @@ export default function Users({ onBack }) {
   const [selectedRole, setSelectedRole] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  
+
   // Form state
   const [showForm, setShowForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -28,23 +28,23 @@ export default function Users({ onBack }) {
   });
   const [formError, setFormError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  
+
   // Delete confirmation
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
-  
+
   // Bulk delete state
   const [selectedUserIds, setSelectedUserIds] = useState(new Set());
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [deleteResult, setDeleteResult] = useState(null);
   const [showDeleteResult, setShowDeleteResult] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
   // Activity log
   const [showActivity, setShowActivity] = useState(false);
   const [activityData, setActivityData] = useState([]);
   const [loadingActivity, setLoadingActivity] = useState(false);
-  
+
   // Import state
   const [showImportModal, setShowImportModal] = useState(false);
 
@@ -53,16 +53,11 @@ export default function Users({ onBack }) {
       toast.error('Unauthorized: No token');
       return;
     }
-    
+
     setLoading(true);
     try {
-      const response = await getUsersFromSheet(token);
-      if (response.status === 'success' && response.data) {
-        setUsers(Array.isArray(response.data) ? response.data : []);
-      } else {
-        setUsers([]);
-        toast.error(response.message || 'Gagal memuat users');
-      }
+      const usersArray = await getUsers(token);
+      setUsers(Array.isArray(usersArray) ? usersArray : []);
     } catch (err) {
       toast.error(err.message || 'Gagal memuat data user');
       setUsers([]);
@@ -76,24 +71,12 @@ export default function Users({ onBack }) {
       toast.error('Unauthorized: No token');
       return;
     }
-    
+
     setLoadingActivity(true);
     setShowActivity(true);
-    try {
-      const response = await getUserActivity(token);
-      if (response.status === 'success' && response.data) {
-        setActivityData(Array.isArray(response.data) ? response.data : []);
-        toast.info('Activity log dimuat');
-      } else {
-        setActivityData([]);
-        toast.error(response.message || 'Gagal memuat activity');
-      }
-    } catch (err) {
-      toast.error('Gagal memuat activity log');
-      setActivityData([]);
-    } finally {
-      setLoadingActivity(false);
-    }
+    // Note: Activity log not available in new API - showing users instead
+    setActivityData(users);
+    setLoadingActivity(false);
   };
 
   useEffect(() => {
@@ -188,18 +171,18 @@ export default function Users({ onBack }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!token) {
       toast.error('Unauthorized: No token');
       return;
     }
-    
+
     // Only admin can add/update users
     if (currentUser?.role !== 'admin') {
       toast.error('Hanya admin yang dapat mengelola user');
       return;
     }
-    
+
     setFormError('');
     setIsSaving(true);
 
@@ -214,18 +197,15 @@ export default function Users({ onBack }) {
         if (formData.password?.trim()) {
           updates.password = formData.password.trim();
         }
-        await updateUserInSheet(token, formData.id, updates);
-        
-        // Wait for backend to process
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
+        await updateUser(token, formData.id, updates);
+
         toast.success(`User berhasil diupdate! Data ${formData.name} telah diperbarui`);
       } else {
         // Validate required fields for create
         if (!formData.name.trim() || !formData.username.trim() || !formData.password.trim()) {
           throw new Error('Semua field harus diisi');
         }
-        
+
         // Create user
         const userData = {
           name: formData.name.trim(),
@@ -233,15 +213,12 @@ export default function Users({ onBack }) {
           password: formData.password.trim(),
           role: formData.role
         };
-        
-        await createUserInSheet(token, userData);
-        
-        // Wait for backend to process
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
+
+        await createUser(token, userData);
+
         toast.success(`User berhasil ditambahkan! ${formData.name} telah ditambahkan ke sistem`);
       }
-      
+
       // Reload users to get updated list
       await loadUsers();
       cancelForm();
@@ -264,12 +241,12 @@ export default function Users({ onBack }) {
 
   const handleDeleteConfirm = async () => {
     if (!userToDelete) return;
-    
+
     if (!token) {
       toast.error('Unauthorized: No token');
       return;
     }
-    
+
     // Only admin can delete users
     if (currentUser?.role !== 'admin') {
       toast.error('Hanya admin yang dapat menghapus user');
@@ -277,13 +254,10 @@ export default function Users({ onBack }) {
     }
 
     try {
-      await deleteUserInSheet(token, userToDelete.id);
-      
-      // Wait for backend to process
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await deleteUser(token, userToDelete.id);
+
       toast.success(`User berhasil dihapus! ${userToDelete.name} telah dihapus dari sistem`);
-      
+
       // Reload users to get updated list
       await loadUsers();
       setShowDeleteConfirm(false);
@@ -303,10 +277,10 @@ export default function Users({ onBack }) {
       await importUsersFromSheet(token, importedUsers);
       toast.success(`${importedUsers.length} user berhasil diimport!`);
       setShowImportModal(false);
-      
+
       // Wait a bit for backend to process
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       // Force reload users list
       await loadUsers();
     } catch (err) {
@@ -363,10 +337,10 @@ export default function Users({ onBack }) {
     try {
       const userIdsToDelete = Array.from(selectedUserIds);
       const response = await bulkDeleteUsersInSheet(token, userIdsToDelete);
-      
+
       // Wait for backend to process
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       // Set delete result for popup
       setDeleteResult({
         status: response.status,
@@ -377,7 +351,7 @@ export default function Users({ onBack }) {
       setShowDeleteResult(true);
       setShowBulkDeleteConfirm(false);
       setSelectedUserIds(new Set());
-      
+
       // Reload users
       await loadUsers();
     } catch (err) {
@@ -396,7 +370,7 @@ export default function Users({ onBack }) {
       <div className="flex-1 overflow-auto p-3 md:p-4">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-xl shadow-slate-300/50 dark:shadow-none border border-slate-200/60 dark:border-gray-700/60 p-4 md:p-5">
-            
+
             {/* Header */}
             <div className="mb-4">
               <div className="flex justify-between items-start mb-2">
@@ -500,11 +474,10 @@ export default function Users({ onBack }) {
                       <div key={idx} className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded-lg text-xs">
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-gray-900 dark:text-gray-100">{activity.name}</span>
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-medium uppercase ${
-                            activity.role === 'admin' 
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-medium uppercase ${activity.role === 'admin'
                               ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200'
                               : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200'
-                          }`}>
+                            }`}>
                             {activity.role}
                           </span>
                         </div>
@@ -551,11 +524,10 @@ export default function Users({ onBack }) {
                 {paginatedUsers.length > 0 && (
                   <button
                     onClick={toggleSelectAll}
-                    className={`px-2 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1 ${
-                      selectedUserIds.size > 0
+                    className={`px-2 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1 ${selectedUserIds.size > 0
                         ? 'bg-orange-500 text-white hover:bg-orange-600'
                         : 'bg-slate-200 dark:bg-gray-600 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-gray-500'
-                    }`}
+                      }`}
                   >
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
@@ -581,11 +553,10 @@ export default function Users({ onBack }) {
                   <div
                     key={user.id}
                     onClick={() => user.id !== currentUser?.id && toggleUserSelection(user.id)}
-                    className={`rounded-lg p-2 border transition-all duration-200 cursor-pointer group ${
-                      selectedUserIds.has(user.id)
+                    className={`rounded-lg p-2 border transition-all duration-200 cursor-pointer group ${selectedUserIds.has(user.id)
                         ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800 shadow-md'
                         : 'bg-gradient-to-r from-slate-50/80 to-blue-50/50 dark:from-gray-700/50 dark:to-gray-600/50 border-slate-200/60 dark:border-gray-600/60 hover:shadow-md hover:bg-slate-100 dark:hover:from-gray-600/60 dark:hover:to-gray-550/60'
-                    } ${user.id === currentUser?.id ? 'opacity-70 cursor-default' : ''}`}
+                      } ${user.id === currentUser?.id ? 'opacity-70 cursor-default' : ''}`}
                   >
                     <div className="flex justify-between items-start mb-1">
                       <div className="flex gap-2 flex-1">
@@ -594,11 +565,10 @@ export default function Users({ onBack }) {
                             <h3 className="font-semibold text-sm text-slate-800 dark:text-slate-100">
                               {user.name}
                             </h3>
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-medium uppercase ${
-                              user.role === 'admin' 
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-medium uppercase ${user.role === 'admin'
                                 ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200'
                                 : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200'
-                            }`}>
+                              }`}>
                               {user.role}
                             </span>
                           </div>
@@ -626,11 +596,10 @@ export default function Users({ onBack }) {
                         <button
                           onClick={() => handleDeleteClick(user)}
                           disabled={user.id === currentUser?.id}
-                          className={`px-2 py-1 text-xs font-medium text-white bg-gradient-to-r from-red-500 to-rose-500 rounded-md transition-all duration-200 flex items-center gap-1 ${
-                            user.id === currentUser?.id 
-                              ? 'opacity-50 cursor-not-allowed' 
+                          className={`px-2 py-1 text-xs font-medium text-white bg-gradient-to-r from-red-500 to-rose-500 rounded-md transition-all duration-200 flex items-center gap-1 ${user.id === currentUser?.id
+                              ? 'opacity-50 cursor-not-allowed'
                               : 'hover:from-red-600 hover:to-rose-600'
-                          }`}
+                            }`}
                           title={user.id === currentUser?.id ? 'Tidak bisa hapus akun sendiri' : 'Hapus user'}
                         >
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -678,9 +647,9 @@ export default function Users({ onBack }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={cancelForm}>
           {/* Backdrop */}
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-          
+
           {/* Modal */}
-          <div 
+          <div
             className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden transform transition-all"
             onClick={(e) => e.stopPropagation()}
           >
@@ -702,7 +671,7 @@ export default function Users({ onBack }) {
                 </div>
               </div>
             </div>
-            
+
             {/* Content */}
             <div className="p-5">
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -720,7 +689,7 @@ export default function Users({ onBack }) {
                       required
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">
                       Username
@@ -734,7 +703,7 @@ export default function Users({ onBack }) {
                       required
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">
                       Role
@@ -748,7 +717,7 @@ export default function Users({ onBack }) {
                       <option value="petugas">Petugas</option>
                     </select>
                   </div>
-                  
+
                   <div className="sm:col-span-2">
                     <label className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">
                       Password
@@ -825,7 +794,7 @@ export default function Users({ onBack }) {
       {showBulkDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !isDeleting && setShowBulkDeleteConfirm(false)}></div>
-          
+
           <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all">
             {/* Header */}
             <div className="bg-gradient-to-r from-red-500 to-rose-500 p-5 text-white">
@@ -841,13 +810,13 @@ export default function Users({ onBack }) {
                 </div>
               </div>
             </div>
-            
+
             {/* Content */}
             <div className="p-5">
               <p className="text-gray-700 dark:text-gray-300 mb-4">
                 Apakah Anda yakin ingin menghapus <span className="font-bold text-red-600 dark:text-red-400">{selectedUserIds.size} user</span> yang dipilih?
               </p>
-              
+
               {/* Action */}
               <div className="flex gap-3 pt-2">
                 <button
@@ -889,20 +858,18 @@ export default function Users({ onBack }) {
       {showDeleteResult && deleteResult && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-          
+
           <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all">
             {/* Header */}
-            <div className={`p-5 text-white ${
-              deleteResult.status === 'success' 
+            <div className={`p-5 text-white ${deleteResult.status === 'success'
                 ? 'bg-gradient-to-r from-green-500 to-emerald-500'
                 : 'bg-gradient-to-r from-yellow-500 to-amber-500'
-            }`}>
+              }`}>
               <div className="flex items-center gap-3">
-                <div className={`p-3 rounded-full ${
-                  deleteResult.status === 'success'
+                <div className={`p-3 rounded-full ${deleteResult.status === 'success'
                     ? 'bg-green-600/20'
                     : 'bg-yellow-600/20'
-                }`}>
+                  }`}>
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                   </svg>
@@ -919,7 +886,7 @@ export default function Users({ onBack }) {
                 </div>
               </div>
             </div>
-            
+
             {/* Content */}
             <div className="p-5">
               <div className="space-y-4">
