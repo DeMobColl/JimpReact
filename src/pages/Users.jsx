@@ -4,7 +4,7 @@ import { useToast } from '../hooks/useToast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ConfirmDialog from '../components/ConfirmDialog';
 import ImportUserModal from '../components/ImportUserModal';
-import { getUsers, createUser, updateUser, deleteUser } from '../services/api';
+import { getUsers, createUser, updateUser, deleteUser, bulkDeleteUsers, bulkImportUsers } from '../services/api';
 
 export default function Users({ onBack }) {
   const { currentUser, token } = useAuth();
@@ -274,7 +274,7 @@ export default function Users({ onBack }) {
     }
 
     try {
-      await importUsersFromSheet(token, importedUsers);
+      await bulkImportUsers(token, importedUsers);
       toast.success(`${importedUsers.length} user berhasil diimport!`);
       setShowImportModal(false);
 
@@ -336,7 +336,7 @@ export default function Users({ onBack }) {
     setIsDeleting(true);
     try {
       const userIdsToDelete = Array.from(selectedUserIds);
-      const response = await bulkDeleteUsersInSheet(token, userIdsToDelete);
+      const response = await bulkDeleteUsers(token, userIdsToDelete);
 
       // Wait for backend to process
       await new Promise(resolve => setTimeout(resolve, 1500));

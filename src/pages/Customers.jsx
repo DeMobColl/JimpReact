@@ -310,13 +310,13 @@ export default function Customers({ onBack }) {
     }
 
     try {
-      const response = await importCustomersFromSheet(token, customersToImport);
+      const response = await bulkImportCustomers(token, customersToImport);
 
-      if (response.status === 'success') {
+      if (response && (response.status === 'success' || response.data)) {
         toast.success(`Import berhasil: ${customersToImport.length} customer ditambahkan`);
         await loadCustomers();
       } else {
-        toast.error(response.message || 'Gagal mengimport customer');
+        toast.error(response?.message || 'Gagal mengimport customer');
       }
     } catch (error) {
       toast.error('Error saat mengimport customer', error.message);

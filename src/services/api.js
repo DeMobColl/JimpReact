@@ -283,6 +283,70 @@ export async function deleteUser(token, userId) {
   }
 }
 
+/**
+ * Bulk delete users
+ * @param {string} token
+ * @param {Array} userIds
+ * @returns {Promise<{deleted: number, excluded: Array}>}
+ */
+export async function bulkDeleteUsers(token, userIds) {
+  try {
+    const deleted = [];
+    const excluded = [];
+
+    // Delete users one by one
+    for (const id of userIds) {
+      try {
+        await deleteUser(token, id);
+        deleted.push(id);
+      } catch (error) {
+        excluded.push({ id, error: error.message });
+      }
+    }
+
+    return {
+      status: 'success',
+      deleted: deleted.length,
+      excluded,
+      totalRequested: userIds.length,
+    };
+  } catch (error) {
+    throw new Error(`Failed to bulk delete users: ${error.message}`);
+  }
+}
+
+/**
+ * Bulk import users
+ * @param {string} token
+ * @param {Array} users
+ * @returns {Promise<Object>}
+ */
+export async function bulkImportUsers(token, users) {
+  try {
+    const created = [];
+    const excluded = [];
+
+    // Create users one by one
+    for (const user of users) {
+      try {
+        const result = await createUser(token, user);
+        created.push(result);
+      } catch (error) {
+        excluded.push({ user, error: error.message });
+      }
+    }
+
+    return {
+      status: 'success',
+      created: created.length,
+      excluded,
+      totalRequested: users.length,
+    };
+  } catch (error) {
+    throw new Error(`Failed to bulk import users: ${error.message}`);
+  }
+}
+
 // ============================================
 // Customer Management Endpoints
 // ============================================
