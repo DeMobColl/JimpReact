@@ -647,6 +647,24 @@ export async function getMyTransactionHistory(token, filters = {}) {
   }
 }
 
+/**
+ * Delete a transaction
+ * @param {string} token
+ * @param {string} transactionId
+ * @returns {Promise<Object>}
+ */
+export async function deleteTransaction(token, transactionId) {
+  try {
+    const response = await apiCall(`/api/transactions/${transactionId}`, {
+      method: "DELETE",
+      token,
+    });
+    return response;
+  } catch (error) {
+    throw new Error(`Failed to delete transaction: ${error.message}`);
+  }
+}
+
 // ============================================
 // Config Endpoints (Not yet implemented in backend)
 // ============================================
@@ -700,6 +718,45 @@ export async function updateConfig(token, configData) {
       return { success: true };
     }
     throw new Error(`Failed to update configuration: ${error.message}`);
+  }
+}
+
+/**
+ * Verify config password
+ * @param {string} token
+ * @param {string} password
+ * @returns {Promise<Object>}
+ */
+export async function verifyConfigPassword(token, password) {
+  try {
+    const response = await apiCall("/api/config/verify-password", {
+      method: "POST",
+      body: { password },
+      token,
+    });
+    return response;
+  } catch (error) {
+    throw new Error(`Failed to verify password: ${error.message}`);
+  }
+}
+
+/**
+ * Update config password
+ * @param {string} token
+ * @param {string} currentPassword
+ * @param {string} newPassword
+ * @returns {Promise<Object>}
+ */
+export async function updateConfigPassword(token, currentPassword, newPassword) {
+  try {
+    const response = await apiCall("/api/config/update-password", {
+      method: "POST",
+      body: { currentPassword, newPassword },
+      token,
+    });
+    return response;
+  } catch (error) {
+    throw new Error(`Failed to update password: ${error.message}`);
   }
 }
 

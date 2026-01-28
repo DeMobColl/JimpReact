@@ -483,8 +483,8 @@ export default function Customers({ onBack }) {
                     <button
                       onClick={toggleSelectAllCustomers}
                       className={`flex-1 sm:flex-initial px-4 py-3 font-semibold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap ${selectedCustomerIds.size > 0
-                          ? 'bg-orange-500 hover:bg-orange-600 text-white'
-                          : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200'
+                        ? 'bg-orange-500 hover:bg-orange-600 text-white'
+                        : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200'
                         }`}
                       title={selectedCustomerIds.size > 0 ? 'Batal Pilih' : 'Pilih Semua'}
                     >
@@ -553,8 +553,8 @@ export default function Customers({ onBack }) {
                           <div
                             onClick={() => toggleCustomerSelection(customer.id)}
                             className={`bg-gradient-to-r from-red-500 to-red-600 p-3 text-white text-center cursor-pointer hover:shadow-md transition-all ${selectedCustomerIds.has(customer.id)
-                                ? 'from-red-500 to-red-600 ring-2 ring-white ring-inset'
-                                : 'hover:from-red-600 hover:to-red-700'
+                              ? 'from-red-500 to-red-600 ring-2 ring-white ring-inset'
+                              : 'hover:from-red-600 hover:to-red-700'
                               }`}
                             title={selectedCustomerIds.has(customer.id) ? 'Batal Pilih' : 'Pilih Customer'}
                           >

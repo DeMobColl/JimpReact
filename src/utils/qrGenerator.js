@@ -20,8 +20,9 @@ export async function generateQRCards(customers, onProgress = null) {
     }
 
     try {
-      // Validate customer data
-      if (!customer.nama || !customer.blok || !customer.qrHash) {
+      // Validate customer data and normalize qrHash field
+      const qrHash = customer.qrHash || customer.qr_hash;
+      if (!customer.nama || !customer.blok || !qrHash) {
         console.warn(`Skipping customer ${customer.id} - missing required fields`);
         continue;
       }
@@ -119,7 +120,7 @@ export async function generateQRCards(customers, onProgress = null) {
       
       // Generate QR code image
       const qrDataUrl = await new Promise((resolve) => {
-        QRCode.toDataURL(customer.qrHash, {
+        QRCode.toDataURL(qrHash, {
           width: 600,
           margin: 2,
           color: {

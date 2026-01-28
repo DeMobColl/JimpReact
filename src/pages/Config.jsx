@@ -5,7 +5,9 @@ import PageLayout from '../components/PageLayout';
 import LoadingSpinner from '../components/LoadingSpinner';
 import {
   getConfig,
-  updateConfig
+  updateConfig,
+  verifyConfigPassword,
+  updateConfigPassword
 } from '../services/api';
 
 export default function Config({ onBack }) {

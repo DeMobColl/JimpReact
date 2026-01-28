@@ -475,8 +475,8 @@ export default function Users({ onBack }) {
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-gray-900 dark:text-gray-100">{activity.name}</span>
                           <span className={`px-2 py-0.5 rounded text-[10px] font-medium uppercase ${activity.role === 'admin'
-                              ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200'
-                              : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200'
+                            ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200'
+                            : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200'
                             }`}>
                             {activity.role}
                           </span>
@@ -525,8 +525,8 @@ export default function Users({ onBack }) {
                   <button
                     onClick={toggleSelectAll}
                     className={`px-2 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1 ${selectedUserIds.size > 0
-                        ? 'bg-orange-500 text-white hover:bg-orange-600'
-                        : 'bg-slate-200 dark:bg-gray-600 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-gray-500'
+                      ? 'bg-orange-500 text-white hover:bg-orange-600'
+                      : 'bg-slate-200 dark:bg-gray-600 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-gray-500'
                       }`}
                   >
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -554,8 +554,8 @@ export default function Users({ onBack }) {
                     key={user.id}
                     onClick={() => user.id !== currentUser?.id && toggleUserSelection(user.id)}
                     className={`rounded-lg p-2 border transition-all duration-200 cursor-pointer group ${selectedUserIds.has(user.id)
-                        ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800 shadow-md'
-                        : 'bg-gradient-to-r from-slate-50/80 to-blue-50/50 dark:from-gray-700/50 dark:to-gray-600/50 border-slate-200/60 dark:border-gray-600/60 hover:shadow-md hover:bg-slate-100 dark:hover:from-gray-600/60 dark:hover:to-gray-550/60'
+                      ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800 shadow-md'
+                      : 'bg-gradient-to-r from-slate-50/80 to-blue-50/50 dark:from-gray-700/50 dark:to-gray-600/50 border-slate-200/60 dark:border-gray-600/60 hover:shadow-md hover:bg-slate-100 dark:hover:from-gray-600/60 dark:hover:to-gray-550/60'
                       } ${user.id === currentUser?.id ? 'opacity-70 cursor-default' : ''}`}
                   >
                     <div className="flex justify-between items-start mb-1">
@@ -566,8 +566,8 @@ export default function Users({ onBack }) {
                               {user.name}
                             </h3>
                             <span className={`px-2 py-0.5 rounded text-[10px] font-medium uppercase ${user.role === 'admin'
-                                ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200'
-                                : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200'
+                              ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200'
+                              : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200'
                               }`}>
                               {user.role}
                             </span>
@@ -597,8 +597,8 @@ export default function Users({ onBack }) {
                           onClick={() => handleDeleteClick(user)}
                           disabled={user.id === currentUser?.id}
                           className={`px-2 py-1 text-xs font-medium text-white bg-gradient-to-r from-red-500 to-rose-500 rounded-md transition-all duration-200 flex items-center gap-1 ${user.id === currentUser?.id
-                              ? 'opacity-50 cursor-not-allowed'
-                              : 'hover:from-red-600 hover:to-rose-600'
+                            ? 'opacity-50 cursor-not-allowed'
+                            : 'hover:from-red-600 hover:to-rose-600'
                             }`}
                           title={user.id === currentUser?.id ? 'Tidak bisa hapus akun sendiri' : 'Hapus user'}
                         >
@@ -862,13 +862,13 @@ export default function Users({ onBack }) {
           <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all">
             {/* Header */}
             <div className={`p-5 text-white ${deleteResult.status === 'success'
-                ? 'bg-gradient-to-r from-green-500 to-emerald-500'
-                : 'bg-gradient-to-r from-yellow-500 to-amber-500'
+              ? 'bg-gradient-to-r from-green-500 to-emerald-500'
+              : 'bg-gradient-to-r from-yellow-500 to-amber-500'
               }`}>
               <div className="flex items-center gap-3">
                 <div className={`p-3 rounded-full ${deleteResult.status === 'success'
-                    ? 'bg-green-600/20'
-                    : 'bg-yellow-600/20'
+                  ? 'bg-green-600/20'
+                  : 'bg-yellow-600/20'
                   }`}>
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />

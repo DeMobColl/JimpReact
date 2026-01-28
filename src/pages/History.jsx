@@ -163,7 +163,7 @@ export default function History({ onBack }) {
       // Table data
       const tableData = filteredTransactions.map((item, index) => [
         index + 1,
-        item.id || '-',
+        item.blok || '-',
         item.nama || '-',
         `Rp${Number(item.nominal || 0).toLocaleString('id-ID')}`,
         formatDateTime(item.waktu || item.timestamp),
@@ -227,7 +227,7 @@ export default function History({ onBack }) {
       // Prepare data
       const excelData = filteredTransactions.map((item, index) => ({
         'No': index + 1,
-        'Blok': item.id || '-',
+        'Blok': item.blok || '-',
         'Nama': item.nama || '-',
         'Nominal': Number(item.nominal || 0),
         'Waktu': formatDateTime(item.waktu || item.timestamp),
@@ -411,7 +411,7 @@ export default function History({ onBack }) {
                           {tx.nama}
                         </h3>
                         <p className="text-xs text-slate-600 dark:text-slate-400">
-                          {tx.id}
+                          {tx.blok}
                         </p>
                       </div>
                       <div className="text-right">
